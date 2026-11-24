@@ -62,6 +62,9 @@ class AdminTest extends TestCase
             'tagline' => 'New tagline test',
             'helpdesk_email' => 'support@test.local',
             'helpdesk_ext' => 'x9999',
+            'wifi_ssid' => 'Nordvik-NewWifi',
+            'wifi_password' => 'SuperPass2026',
+            'wifi_encryption' => 'WPA',
             'wallpaper_enabled' => 1,
             'wallpaper_mode' => 'picsum',
             'wallpaper_interval' => 60000,
@@ -73,6 +76,8 @@ class AdminTest extends TestCase
         $this->assertDatabaseHas('portal_settings', [
             'office_name' => 'Updated Office Hub',
             'helpdesk_ext' => 'x9999',
+            'wifi_ssid' => 'Nordvik-NewWifi',
+            'wifi_password' => 'SuperPass2026',
         ]);
     }
 }

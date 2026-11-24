@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 
 // Public Staff Portal
 Route::get('/', [PortalController::class, 'index'])->name('portal');
+Route::get('/wifi', [PortalController::class, 'showWifi'])->name('wifi');
+Route::get('/services/ping', [PortalController::class, 'pingServices'])->name('services.ping');
+Route::get('/services/{service}/ping', [PortalController::class, 'pingService'])->name('services.ping_one');
 
 // Auth routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

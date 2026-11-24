@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Bookmark;
-use App\Models\Notice;
 use App\Models\PortalSetting;
 use App\Models\Service;
 use App\Models\User;

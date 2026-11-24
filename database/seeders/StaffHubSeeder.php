@@ -34,6 +34,9 @@ class StaffHubSeeder extends Seeder
                 'tagline' => 'A calm place to start the workday.',
                 'helpdesk_email' => 'helpdesk@nordvik.local',
                 'helpdesk_ext' => 'x4210',
+                'wifi_ssid' => 'Nordvik-Guest',
+                'wifi_password' => 'CozyWelcome2026',
+                'wifi_encryption' => 'WPA',
                 'theme' => null,
                 'wallpaper_enabled' => true,
                 'wallpaper_mode' => 'picsum',
@@ -49,7 +52,7 @@ class StaffHubSeeder extends Seeder
         $services = [
             ['icon' => '☁️', 'name' => 'Nextcloud', 'description' => 'Files, calendar and shared drives.', 'url' => 'https://cloud.example.com', 'status' => 'online', 'sort_order' => 1],
             ['icon' => '📝', 'name' => 'ONLYOFFICE', 'description' => 'Docs, sheets and slides in the browser.', 'url' => 'https://office.example.com', 'status' => 'online', 'sort_order' => 2],
-            ['icon' => '🗄️', 'name' => 'Office NAS', 'description' => 'Backups, archives and the media library.', 'url' => 'http://nas.local', 'status' => 'maintenance', 'sort_order' => 3],
+            ['icon' => '🗄️', 'name' => 'Office NAS', 'description' => 'Backups, archives and the media library.', 'url' => 'http://nas.local', 'status' => 'offline', 'sort_order' => 3],
             ['icon' => '📌', 'name' => 'Project Tracker', 'description' => 'Sprints, tasks and weekly checkpoints.', 'url' => 'https://tracker.example.com', 'status' => 'online', 'sort_order' => 4],
             ['icon' => '✉️', 'name' => 'Web Mail', 'description' => 'Company email on the web client.', 'url' => 'https://mail.example.com', 'status' => 'offline', 'sort_order' => 5],
         ];
@@ -92,7 +95,7 @@ class StaffHubSeeder extends Seeder
         // Bookmarks
         Bookmark::truncate();
         $bookmarks = [
-            ['label' => 'Wi-Fi guest pass', 'url' => 'https://example.com/guest-wifi', 'sort_order' => 1],
+            ['label' => 'Guest Wifi Pass', 'url' => '/wifi', 'sort_order' => 1],
             ['label' => 'Desk booking', 'url' => 'https://example.com/desks', 'sort_order' => 2],
             ['label' => 'Leave request', 'url' => 'https://example.com/leave', 'sort_order' => 3],
             ['label' => 'Printer queue', 'url' => 'http://print.local/queue', 'sort_order' => 4],

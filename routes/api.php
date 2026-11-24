@@ -1,16 +1,20 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PortalController;
 use App\Models\Bookmark;
 use App\Models\Notice;
 use App\Models\PortalSetting;
 use App\Models\Service;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public JSON Endpoints for live updates & search
 Route::get('/settings', fn () => response()->json(PortalSetting::current()));
 Route::get('/services', fn () => response()->json(Service::ordered()->get()));
+Route::get('/services/ping', [PortalController::class, 'pingServices']);
+Route::get('/services/{service}/ping', [PortalController::class, 'pingService']);
+Route::get('/services/ping', [PortalController::class, 'pingServices']);
+Route::get('/services/{service}/ping', [PortalController::class, 'pingService']);
 Route::get('/notices', fn () => response()->json(Notice::sorted()->get()));
 Route::get('/bookmarks', fn () => response()->json(Bookmark::ordered()->get()));
 

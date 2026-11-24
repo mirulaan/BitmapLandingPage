@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\QrCodeService;
 use Illuminate\Database\Eloquent\Model;
 
 class PortalSetting extends Model
@@ -28,6 +29,9 @@ class PortalSetting extends Model
                 'tagline' => 'A calm place to start the workday.',
                 'helpdesk_email' => 'helpdesk@nordvik.local',
                 'helpdesk_ext' => 'x4210',
+                'wifi_ssid' => 'Nordvik-Guest',
+                'wifi_password' => 'CozyWelcome2026',
+                'wifi_encryption' => 'WPA',
                 'theme' => null,
                 'wallpaper_enabled' => true,
                 'wallpaper_mode' => 'picsum',
@@ -37,5 +41,26 @@ class PortalSetting extends Model
                 'wallpaper_veil' => 55,
             ]
         );
+    }
+
+    /**
+     * Build the standard Wi-Fi QR Code content string.
+     * Format: WIFI:T:WPA;S:MySSID;P:MyPassword;;
+     */
+    public function getWifiStringAttribute(): string
+    {
+        $ssid = addcslashes($this->wifi_ssid ?: 'Nordvik-Guest', '";,:\\');
+        $pass = addcslashes($this->wifi_password ?: '', '";,:\\');
+        $type = $this->wifi_encryption ?: 'WPA';
+
+        return "WIFI:T:{$type};S:{$ssid};P:{$pass};;";
+    }
+
+    /**
+     * Generate crisp SVG QR Code for the Wi-Fi credentials.
+     */
+    public function getWifiQrSvgAttribute(): string
+    {
+        return QrCodeService::generateSvg($this->wifi_string, 260, '#000000');
     }
 }

@@ -8,7 +8,6 @@ use App\Models\PortalSetting;
 use App\Models\Service;
 use Database\Seeders\StaffHubSeeder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
@@ -16,9 +15,9 @@ class AdminController extends Controller
     public function index()
     {
         return view('admin', [
-            'settings'  => PortalSetting::current(),
-            'services'  => Service::ordered()->get(),
-            'notices'   => Notice::sorted()->get(),
+            'settings' => PortalSetting::current(),
+            'services' => Service::ordered()->get(),
+            'notices' => Notice::sorted()->get(),
             'bookmarks' => Bookmark::ordered()->get(),
         ]);
     }
@@ -26,17 +25,20 @@ class AdminController extends Controller
     public function updateSettings(Request $request)
     {
         $data = $request->validate([
-            'office_name'           => 'required|string|max:60',
-            'tagline'               => 'nullable|string|max:90',
-            'helpdesk_email'        => 'required|email|max:120',
-            'helpdesk_ext'          => 'nullable|string|max:12',
-            'theme'                 => 'nullable|in:day,night',
-            'wallpaper_enabled'     => 'sometimes|boolean',
-            'wallpaper_mode'        => 'required|in:picsum,custom',
+            'office_name' => 'required|string|max:60',
+            'tagline' => 'nullable|string|max:90',
+            'helpdesk_email' => 'required|email|max:120',
+            'helpdesk_ext' => 'nullable|string|max:12',
+            'wifi_ssid' => 'nullable|string|max:64',
+            'wifi_password' => 'nullable|string|max:64',
+            'wifi_encryption' => 'nullable|string|in:WPA,WEP,nopass',
+            'theme' => 'nullable|in:day,night',
+            'wallpaper_enabled' => 'sometimes|boolean',
+            'wallpaper_mode' => 'required|in:picsum,custom',
             'wallpaper_custom_urls' => 'nullable',
-            'wallpaper_interval'    => 'required|integer|min:0',
-            'wallpaper_blur'        => 'required|integer|min:0|max:60',
-            'wallpaper_veil'        => 'required|integer|min:0|max:90',
+            'wallpaper_interval' => 'required|integer|min:0',
+            'wallpaper_blur' => 'required|integer|min:0|max:60',
+            'wallpaper_veil' => 'required|integer|min:0|max:90',
         ]);
 
         $setting = PortalSetting::current();
@@ -45,7 +47,7 @@ class AdminController extends Controller
             if (is_string($data['wallpaper_custom_urls'])) {
                 $lines = array_map('trim', explode("\n", $data['wallpaper_custom_urls']));
                 $data['wallpaper_custom_urls'] = array_values(array_filter($lines));
-            } elseif (!is_array($data['wallpaper_custom_urls'])) {
+            } elseif (! is_array($data['wallpaper_custom_urls'])) {
                 $data['wallpaper_custom_urls'] = [];
             }
         }
@@ -64,16 +66,20 @@ class AdminController extends Controller
     public function storeService(Request $request)
     {
         $data = $request->validate([
-            'icon'        => 'nullable|string|max:16',
-            'name'        => 'required|string|max:40',
+            'icon' => 'nullable|string|max:16',
+            'name' => 'required|string|max:40',
             'description' => 'nullable|string|max:90',
-            'url'         => 'required|url|max:255',
-            'status'      => 'required|in:online,maintenance,offline',
+            'url' => 'required|url|max:255',
+            'status' => 'nullable|in:online,offline',
         ]);
 
         $maxOrder = Service::max('sort_order') ?? 0;
         $data['sort_order'] = $maxOrder + 1;
         $data['icon'] = $data['icon'] ?: '🔧';
+
+        if (empty($data['status'])) {
+            $data['status'] = Service::pingUrl($data['url']);
+        }
 
         $service = Service::create($data);
 
@@ -87,15 +93,20 @@ class AdminController extends Controller
     public function updateService(Request $request, Service $service)
     {
         $data = $request->validate([
-            'icon'        => 'nullable|string|max:16',
-            'name'        => 'required|string|max:40',
+            'icon' => 'nullable|string|max:16',
+            'name' => 'required|string|max:40',
             'description' => 'nullable|string|max:90',
-            'url'         => 'required|url|max:255',
-            'status'      => 'required|in:online,maintenance,offline',
-            'sort_order'  => 'nullable|integer',
+            'url' => 'required|url|max:255',
+            'status' => 'nullable|in:online,offline',
+            'sort_order' => 'nullable|integer',
         ]);
 
         $data['icon'] = $data['icon'] ?: '🔧';
+
+        if (empty($data['status']) && isset($data['url'])) {
+            $data['status'] = Service::pingUrl($data['url']);
+        }
+
         $service->update($data);
 
         if ($request->wantsJson()) {
@@ -137,11 +148,11 @@ class AdminController extends Controller
     public function storeNotice(Request $request)
     {
         $data = $request->validate([
-            'title'    => 'required|string|max:80',
-            'body'     => 'nullable|string|max:400',
+            'title' => 'required|string|max:80',
+            'body' => 'nullable|string|max:400',
             'category' => 'required|in:general,it,reminder',
             'priority' => 'required|in:normal,high',
-            'pinned'   => 'sometimes|boolean',
+            'pinned' => 'sometimes|boolean',
         ]);
 
         $data['pinned'] = $request->boolean('pinned');
@@ -157,11 +168,11 @@ class AdminController extends Controller
     public function updateNotice(Request $request, Notice $notice)
     {
         $data = $request->validate([
-            'title'    => 'sometimes|required|string|max:80',
-            'body'     => 'nullable|string|max:400',
+            'title' => 'sometimes|required|string|max:80',
+            'body' => 'nullable|string|max:400',
             'category' => 'sometimes|required|in:general,it,reminder',
             'priority' => 'sometimes|required|in:normal,high',
-            'pinned'   => 'sometimes|boolean',
+            'pinned' => 'sometimes|boolean',
         ]);
 
         if ($request->has('pinned')) {
@@ -192,7 +203,7 @@ class AdminController extends Controller
     {
         $data = $request->validate([
             'label' => 'required|string|max:40',
-            'url'   => 'required|url|max:255',
+            'url' => 'required|url|max:255',
         ]);
 
         $maxOrder = Bookmark::max('sort_order') ?? 0;
@@ -210,8 +221,8 @@ class AdminController extends Controller
     public function updateBookmark(Request $request, Bookmark $bookmark)
     {
         $data = $request->validate([
-            'label'      => 'required|string|max:40',
-            'url'        => 'required|url|max:255',
+            'label' => 'required|string|max:40',
+            'url' => 'required|url|max:255',
             'sort_order' => 'nullable|integer',
         ]);
 
@@ -239,7 +250,7 @@ class AdminController extends Controller
     {
         $setting = PortalSetting::current();
         $services = Service::ordered()->get()->map(fn ($s) => [
-            'id' => (string)$s->id,
+            'id' => (string) $s->id,
             'icon' => $s->icon,
             'name' => $s->name,
             'desc' => $s->description,
@@ -248,17 +259,17 @@ class AdminController extends Controller
         ]);
 
         $notices = Notice::sorted()->get()->map(fn ($n) => [
-            'id' => (string)$n->id,
+            'id' => (string) $n->id,
             'title' => $n->title,
             'body' => $n->body,
             'category' => $n->category,
             'priority' => $n->priority,
-            'pinned' => (bool)$n->pinned,
+            'pinned' => (bool) $n->pinned,
             'ts' => $n->created_at ? $n->created_at->getTimestampMs() : now()->getTimestampMs(),
         ]);
 
         $bookmarks = Bookmark::ordered()->get()->map(fn ($b) => [
-            'id' => (string)$b->id,
+            'id' => (string) $b->id,
             'label' => $b->label,
             'url' => $b->url,
         ]);
@@ -271,9 +282,14 @@ class AdminController extends Controller
                 'email' => $setting->helpdesk_email,
                 'ext' => $setting->helpdesk_ext,
             ],
+            'wifi' => [
+                'ssid' => $setting->wifi_ssid,
+                'password' => $setting->wifi_password,
+                'encryption' => $setting->wifi_encryption,
+            ],
             'theme' => $setting->theme,
             'wallpaper' => [
-                'enabled' => (bool)$setting->wallpaper_enabled,
+                'enabled' => (bool) $setting->wallpaper_enabled,
                 'mode' => $setting->wallpaper_mode,
                 'customUrls' => $setting->wallpaper_custom_urls ?? [],
                 'interval' => $setting->wallpaper_interval,
@@ -285,10 +301,10 @@ class AdminController extends Controller
             'bookmarks' => $bookmarks,
         ];
 
-        $filename = 'intranet-portal-' . date('Y-m-d') . '.json';
+        $filename = 'intranet-portal-'.date('Y-m-d').'.json';
 
         return response()->json($payload, 200, [
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 
@@ -301,7 +317,7 @@ class AdminController extends Controller
         $content = file_get_contents($request->file('config_file')->getRealPath());
         $data = json_decode($content, true);
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             return back()->withErrors(['config_file' => 'Invalid JSON config file.']);
         }
 
@@ -309,14 +325,18 @@ class AdminController extends Controller
             $setting = PortalSetting::current();
             $wp = $data['wallpaper'] ?? [];
             $hd = $data['helpdesk'] ?? [];
+            $wifi = $data['wifi'] ?? [];
 
             $setting->update([
                 'office_name' => $data['office'] ?? $data['office_name'] ?? $setting->office_name,
                 'tagline' => $data['tagline'] ?? $setting->tagline,
                 'helpdesk_email' => $hd['email'] ?? $data['helpdesk_email'] ?? $setting->helpdesk_email,
                 'helpdesk_ext' => $hd['ext'] ?? $data['helpdesk_ext'] ?? $setting->helpdesk_ext,
+                'wifi_ssid' => $wifi['ssid'] ?? $data['wifi_ssid'] ?? $setting->wifi_ssid,
+                'wifi_password' => $wifi['password'] ?? $data['wifi_password'] ?? $setting->wifi_password,
+                'wifi_encryption' => $wifi['encryption'] ?? $data['wifi_encryption'] ?? $setting->wifi_encryption,
                 'theme' => $data['theme'] ?? $setting->theme,
-                'wallpaper_enabled' => isset($wp['enabled']) ? (bool)$wp['enabled'] : $setting->wallpaper_enabled,
+                'wallpaper_enabled' => isset($wp['enabled']) ? (bool) $wp['enabled'] : $setting->wallpaper_enabled,
                 'wallpaper_mode' => $wp['mode'] ?? $setting->wallpaper_mode,
                 'wallpaper_custom_urls' => $wp['customUrls'] ?? $wp['wallpaper_custom_urls'] ?? $setting->wallpaper_custom_urls,
                 'wallpaper_interval' => $wp['interval'] ?? $setting->wallpaper_interval,
@@ -332,7 +352,7 @@ class AdminController extends Controller
                         'name' => $s['name'] ?? 'Service',
                         'description' => $s['desc'] ?? $s['description'] ?? '',
                         'url' => $s['url'] ?? '#',
-                        'status' => in_array($s['status'] ?? '', ['online', 'maintenance', 'offline']) ? $s['status'] : 'online',
+                        'status' => in_array($s['status'] ?? '', ['online', 'offline']) ? $s['status'] : Service::pingUrl($s['url'] ?? ''),
                         'sort_order' => $idx + 1,
                     ]);
                 }
@@ -341,13 +361,13 @@ class AdminController extends Controller
             if (isset($data['notices']) && is_array($data['notices'])) {
                 Notice::truncate();
                 foreach ($data['notices'] as $n) {
-                    $createdAt = isset($n['ts']) ? now()->setTimestamp((int)($n['ts'] / 1000)) : now();
+                    $createdAt = isset($n['ts']) ? now()->setTimestamp((int) ($n['ts'] / 1000)) : now();
                     Notice::create([
                         'title' => $n['title'] ?? 'Notice',
                         'body' => $n['body'] ?? '',
                         'category' => in_array($n['category'] ?? '', ['general', 'it', 'reminder']) ? $n['category'] : 'general',
                         'priority' => in_array($n['priority'] ?? '', ['normal', 'high']) ? $n['priority'] : 'normal',
-                        'pinned' => !empty($n['pinned']),
+                        'pinned' => ! empty($n['pinned']),
                         'created_at' => $createdAt,
                     ]);
                 }
@@ -374,7 +394,7 @@ class AdminController extends Controller
 
     public function resetDefaults(Request $request)
     {
-        $seeder = new StaffHubSeeder();
+        $seeder = new StaffHubSeeder;
         $seeder->run();
 
         if ($request->wantsJson()) {

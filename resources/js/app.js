@@ -190,6 +190,9 @@
       show.style.opacity = 1;
       hide.style.opacity = 0;
       bg.showing = bg.showing === 'a' ? 'b' : 'a';
+      try {
+        sessionStorage.setItem('staffhub-last-wallpaper', url);
+      } catch (e) {}
       const t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       setBgStatus('live', `Live · ${srcName} · updated ${t}`);
     });
@@ -246,13 +249,12 @@
     }
   }
 
-  const searchInput = $('#search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', e => {
+  document.addEventListener('input', e => {
+    if (e.target && e.target.id === 'search-input') {
       searchQuery = e.target.value.trim();
       filterCards();
-    });
-  }
+    }
+  });
 
   document.addEventListener('keydown', e => {
     const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
@@ -278,19 +280,16 @@
   });
 
   /* ---------------- Notice Tabs & Deletion ---------------- */
-  const catTabs = $('#cat-tabs');
-  if (catTabs) {
-    catTabs.addEventListener('click', e => {
-      const tab = e.target.closest('.cat-tab');
-      if (!tab) return;
-      const cat = tab.dataset.cat;
-      $$('#cat-tabs .cat-tab').forEach(t => t.classList.toggle('active', t === tab));
-      $$('#notices-list .notice').forEach(article => {
-        const itemCat = article.dataset.category;
-        article.style.display = (cat === 'all' || itemCat === cat) ? '' : 'none';
-      });
+  document.addEventListener('click', e => {
+    const tab = e.target.closest('#cat-tabs .cat-tab');
+    if (!tab) return;
+    const cat = tab.dataset.cat;
+    $$('#cat-tabs .cat-tab').forEach(t => t.classList.toggle('active', t === tab));
+    $$('#notices-list .notice').forEach(article => {
+      const itemCat = article.dataset.category;
+      article.style.display = (cat === 'all' || itemCat === cat) ? '' : 'none';
     });
-  }
+  });
 
   // Delete notice directly from portal (if auth)
   document.addEventListener('click', async e => {
@@ -312,13 +311,13 @@
   });
 
   /* ---------------- Helpdesk copy ---------------- */
-  $$('.copy-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const target = $('#' + btn.dataset.copyTarget);
-      if (!target) return;
-      const ok = await copyText(target.textContent.trim());
-      toast(ok ? 'Copied to clipboard ☕' : 'Copy failed — select it manually.');
-    });
+  document.addEventListener('click', async e => {
+    const copyBtn = e.target.closest('.copy-btn');
+    if (!copyBtn) return;
+    const target = $('#' + copyBtn.dataset.copyTarget);
+    if (!target) return;
+    const ok = await copyText(target.textContent.trim());
+    toast(ok ? 'Copied to clipboard ☕' : 'Copy failed — select it manually.');
   });
 
   /* ---------------- Notice Modal ---------------- */
@@ -339,11 +338,11 @@
     if (modal) modal.classList.remove('open');
   }
 
-  const postBtn = $('#post-btn');
-  if (postBtn) postBtn.addEventListener('click', openModal);
-
-  const admNewNoticeBtn = $('#adm-new-notice-btn');
-  if (admNewNoticeBtn) admNewNoticeBtn.addEventListener('click', openModal);
+  document.addEventListener('click', e => {
+    if (e.target.closest('#post-btn') || e.target.closest('#adm-new-notice-btn')) {
+      openModal();
+    }
+  });
 
   const nmCancel = $('#nm-cancel');
   if (nmCancel) nmCancel.addEventListener('click', closeModal);
@@ -380,7 +379,7 @@
         if (res.ok) {
           toast('Notice published 📌');
           closeModal();
-          setTimeout(() => location.reload(), 400);
+          refreshStaffPortal();
         } else {
           const err = await res.json().catch(() => ({}));
           toast(err.message || 'Error publishing notice.');
@@ -511,39 +510,20 @@
           name: row.querySelector('[data-f="name"]')?.value || 'Service',
           description: row.querySelector('[data-f="desc"]')?.value || '',
           url: row.querySelector('[data-f="url"]')?.value || 'https://',
-          status: row.querySelector('[data-f="status"]')?.value || 'online',
         };
         try {
-          await apiFetch(`/admin/services/${id}`, {
+          const res = await apiFetch(`/admin/services/${id}`, {
             method: 'PUT',
             body: JSON.stringify(payload),
           });
-          toast('Service updated.');
+          if (res.ok) {
+            toast('Service updated.');
+            if (field === 'url') {
+              pingSingleService(id);
+            }
+          }
         } catch {}
       }, 500);
-    });
-
-    // Select change
-    adminServices.addEventListener('change', async e => {
-      if (e.target.dataset.f === 'status') {
-        const row = e.target.closest('.row-item');
-        if (!row) return;
-        const id = row.dataset.id;
-        const payload = {
-          icon: row.querySelector('[data-f="icon"]')?.value || '🔧',
-          name: row.querySelector('[data-f="name"]')?.value || 'Service',
-          description: row.querySelector('[data-f="desc"]')?.value || '',
-          url: row.querySelector('[data-f="url"]')?.value || 'https://',
-          status: e.target.value,
-        };
-        try {
-          await apiFetch(`/admin/services/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(payload),
-          });
-          toast('Status updated.');
-        } catch {}
-      }
     });
 
     // Buttons: Up, Down, Delete
@@ -600,12 +580,55 @@
             name: 'New service',
             description: 'What is this for?',
             url: 'https://example.com',
-            status: 'online',
           }),
         });
         if (res.ok) {
+          const json = await res.json();
           toast('Service created.');
-          setTimeout(() => location.reload(), 300);
+          if (json.service && adminServices) {
+            const s = json.service;
+            const status = s.status === 'online' ? 'online' : 'offline';
+            const label = status === 'online' ? 'Online' : 'Offline';
+            const div = document.createElement('div');
+            div.className = 'row-item svc-row';
+            div.dataset.id = s.id;
+            div.innerHTML = `
+              <input class="icon-input" data-f="icon" value="${esc(s.icon || '🔧')}" maxlength="4" aria-label="Icon">
+              <input data-f="name" value="${esc(s.name)}" maxlength="40" aria-label="Name">
+              <input class="url-input" data-f="url" value="${esc(s.url)}" placeholder="https://…" aria-label="URL">
+              <input class="desc-input" data-f="desc" value="${esc(s.description)}" maxlength="90" aria-label="Description">
+              <span class="status-indicator badge ${status}">● ${label}</span>
+              <div class="row-tools">
+                <button type="button" class="tool-btn" data-act="up" title="Move up">↑</button>
+                <button type="button" class="tool-btn" data-act="down" title="Move down">↓</button>
+                <button type="button" class="tool-btn danger" data-act="del" title="Delete">🗑</button>
+              </div>
+            `;
+            adminServices.appendChild(div);
+            const svcGrid = $('#services-grid');
+            if (svcGrid) {
+              const card = document.createElement('a');
+              card.className = 'svc';
+              card.dataset.id = s.id;
+              card.dataset.name = (s.name || '').toLowerCase();
+              card.dataset.desc = (s.description || '').toLowerCase();
+              card.dataset.status = status;
+              card.href = safeUrl(s.url) || '#';
+              card.target = '_blank';
+              card.rel = 'noopener';
+              const statusLabels = { online: 'Online', offline: 'Offline' };
+              card.innerHTML = `
+                <div class="svc-top">
+                  <span class="svc-icon">${esc(s.icon || '🔧')}</span>
+                  <span class="badge ${status}">${statusLabels[status]}</span>
+                </div>
+                <div><div class="svc-name">${esc(s.name)}</div></div>
+                <div class="svc-desc">${esc(s.description)}</div>
+                <span class="svc-go">Open ↗</span>
+              `;
+              svcGrid.appendChild(card);
+            }
+          }
         }
       } catch {
         toast('Error creating service.');
@@ -710,8 +733,33 @@
           }),
         });
         if (res.ok) {
+          const json = await res.json();
           toast('Bookmark created.');
-          setTimeout(() => location.reload(), 300);
+          if (json.bookmark && adminBookmarks) {
+            const b = json.bookmark;
+            const div = document.createElement('div');
+            div.className = 'row-item bookmark-row';
+            div.dataset.id = b.id;
+            div.innerHTML = `
+              <input data-f="label" value="${esc(b.label)}" maxlength="40" aria-label="Label">
+              <input data-f="url" value="${esc(b.url)}" placeholder="https://…" aria-label="URL">
+              <button type="button" class="tool-btn danger" data-act="del" title="Delete">🗑</button>
+            `;
+            adminBookmarks.appendChild(div);
+            const bmChips = $('#bookmarks-chips');
+            if (bmChips) {
+              const chip = document.createElement('a');
+              chip.className = 'chip-link';
+              chip.dataset.id = b.id;
+              chip.dataset.label = (b.label || '').toLowerCase();
+              chip.dataset.url = (b.url || '').toLowerCase();
+              chip.href = safeUrl(b.url) || '#';
+              chip.target = '_blank';
+              chip.rel = 'noopener';
+              chip.innerHTML = `<span class="dot"></span>${esc(b.label)}`;
+              bmChips.appendChild(chip);
+            }
+          }
         }
       } catch {
         toast('Error creating bookmark.');
@@ -744,10 +792,229 @@
     });
   }
 
+  // Admin Identity Settings form
+  const formSettings = $('#form-settings');
+  if (formSettings) {
+    formSettings.addEventListener('submit', async e => {
+      e.preventDefault();
+      const formData = new FormData(formSettings);
+      const data = Object.fromEntries(formData.entries());
+      try {
+        const res = await apiFetch(formSettings.action, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        });
+        if (res.ok) {
+          toast('Identity settings saved.');
+          if (data.office_name) {
+            state.office = data.office_name;
+            const el = $('#office-name');
+            if (el) el.textContent = data.office_name;
+            document.title = data.office_name + ' — Office Intranet';
+          }
+          if (data.tagline) {
+            state.tagline = data.tagline;
+            const el = $('#tagline');
+            if (el) el.textContent = data.tagline;
+          }
+          if (data.helpdesk_email) {
+            state.helpdesk.email = data.helpdesk_email;
+            const el = $('#hd-email');
+            if (el) el.textContent = data.helpdesk_email;
+          }
+          if (data.helpdesk_ext) {
+            state.helpdesk.ext = data.helpdesk_ext;
+            const el = $('#hd-ext');
+            if (el) el.textContent = data.helpdesk_ext;
+          }
+        } else {
+          formSettings.submit();
+        }
+      } catch {
+        formSettings.submit();
+      }
+    });
+  }
+
+  /* ---------------- Service Ping Engine ---------------- */
+  async function pingServices() {
+    const note = $('#ping-status-note');
+    if (note) note.textContent = 'Pinging…';
+    try {
+      const res = await fetch('/services/ping', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+      if (!res.ok) {
+        if (note) note.textContent = '';
+        return;
+      }
+      const data = await res.json();
+      if (Array.isArray(data.services)) {
+        data.services.forEach(item => {
+          updateServiceStatusDom(item.id, item.status);
+        });
+      }
+      if (note) {
+        const time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        note.textContent = `Pinged ${time}`;
+      }
+    } catch {
+      if (note) note.textContent = 'Ping failed.';
+    }
+  }
+
+  async function pingSingleService(id) {
+    try {
+      const res = await fetch(`/services/${id}/ping`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status) {
+        updateServiceStatusDom(id, data.status);
+      }
+    } catch {}
+  }
+
+  function updateServiceStatusDom(id, rawStatus) {
+    const status = rawStatus === 'online' ? 'online' : 'offline';
+    const label = status === 'online' ? 'Online' : 'Offline';
+
+    // Update portal card
+    const card = document.querySelector(`.services-grid .svc[data-id="${id}"]`);
+    if (card) {
+      card.dataset.status = status;
+      const badge = card.querySelector('.badge');
+      if (badge) {
+        badge.className = `badge ${status}`;
+        badge.textContent = label;
+      }
+    }
+
+    // Update admin row
+    const row = document.querySelector(`.svc-row[data-id="${id}"]`);
+    if (row) {
+      const indicator = row.querySelector('.status-indicator');
+      if (indicator) {
+        indicator.className = `status-indicator badge ${status}`;
+        indicator.textContent = `● ${label}`;
+      }
+    }
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target && e.target.id === 'ping-services-btn') {
+      toast('Checking service availability…');
+      pingServices();
+    }
+  });
+
+  /* ---------------- View Routing & Instantaneous DOM Toggle ---------------- */
+  const viewPortal = $('#view-portal');
+  const viewAdmin = $('#view-admin');
+  const switchBtns = $$('.switch-btn');
+
+  async function refreshStaffPortal() {
+    try {
+      const portalUrl = window.__INITIAL_STATE__?.routes?.portal || '/';
+      const res = await fetch(portalUrl, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      });
+      if (!res.ok) return;
+      const html = await res.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+
+      // Update brand in topbar if changed
+      const newOffice = doc.querySelector('#office-name');
+      const curOffice = $('#office-name');
+      if (newOffice && curOffice) curOffice.textContent = newOffice.textContent;
+
+      const newTagline = doc.querySelector('#tagline');
+      const curTagline = $('#tagline');
+      if (newTagline && curTagline) curTagline.textContent = newTagline.textContent;
+
+      // Update staff portal view content
+      const newPortal = doc.querySelector('#view-portal');
+      const curPortal = $('#view-portal');
+      if (newPortal && curPortal) {
+        curPortal.innerHTML = newPortal.innerHTML;
+        // Re-apply search filter if active
+        if (searchQuery) {
+          const si = $('#search-input');
+          if (si) si.value = searchQuery;
+          filterCards();
+        }
+      }
+
+      // Check live availability via ping
+      pingServices();
+    } catch (e) {
+      console.warn('Staff portal background refresh failed:', e);
+    }
+  }
+
+  function updateView(target, updateHistory = true) {
+    if (!viewPortal || !viewAdmin) return false;
+    const wasAdmin = !viewAdmin.hidden;
+    const isAdmin = target === 'admin';
+    viewPortal.hidden = isAdmin;
+    viewAdmin.hidden = !isAdmin;
+
+    switchBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === target);
+    });
+
+    if (updateHistory) {
+      const targetUrl = isAdmin
+        ? (window.__INITIAL_STATE__?.routes?.admin || '/admin')
+        : (window.__INITIAL_STATE__?.routes?.portal || '/');
+      if (window.location.pathname !== targetUrl) {
+        history.pushState({ view: target }, '', targetUrl);
+      }
+    }
+    window.scrollTo({ top: 0 });
+
+    // Refresh staff portal when changing from admin to staff portal
+    if (wasAdmin && !isAdmin) {
+      refreshStaffPortal();
+    }
+
+    return true;
+  }
+
+  switchBtns.forEach(btn => {
+    btn.addEventListener('click', e => {
+      const target = btn.dataset.view;
+      if (viewPortal && viewAdmin && target) {
+        e.preventDefault();
+        updateView(target, true);
+      }
+    });
+  });
+
+  window.addEventListener('popstate', () => {
+    if (viewPortal && viewAdmin) {
+      const isAdmin = window.location.pathname.startsWith('/admin');
+      updateView(isAdmin ? 'admin' : 'portal', false);
+    }
+  });
+
   /* ---------------- Boot ---------------- */
   applyTheme();
   applyBgVars();
+
+  // Instant wallpaper recovery from session cache to eliminate white / blank flash
+  try {
+    const cachedWp = sessionStorage.getItem('staffhub-last-wallpaper');
+    if (cachedWp && layerA && state.wallpaper.enabled) {
+      layerA.style.backgroundImage = `url("${cachedWp}")`;
+      layerA.style.opacity = 1;
+      bg.showing = 'a';
+    }
+  } catch (e) {}
+
   restartBgTimer();
   refreshWallpaper();
+  pingServices();
 
 })();

@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             try {
                 if (Schema::hasTable('portal_settings')) {
-                    if (!$view->offsetExists('settings')) {
+                    if (! $view->offsetExists('settings')) {
                         $view->with('settings', PortalSetting::current());
                     }
                 }
