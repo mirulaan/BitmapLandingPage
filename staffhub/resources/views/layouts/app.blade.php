@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ $settings->theme ?? 'day' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{{ $settings->office_name ?? 'Staff Hub' }} — Office Intranet</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  @stack('styles')
+</head>
+<body>
+
+<!-- Dreamy blurred wallpaper -->
+<div id="bg-wrap" aria-hidden="true">
+  <div id="bg-layer-a" class="bg-layer"></div>
+  <div id="bg-layer-b" class="bg-layer"></div>
+  <div id="bg-bokeh"></div>
+  <div id="bg-veil"></div>
+</div>
+
+<div class="shell">
+
+  <!-- ================= HEADER ================= -->
+  <header class="topbar">
+    <div class="brand">
+      <a href="{{ route('portal') }}" class="brand-mark" style="text-decoration:none">🏡</a>
+      <div class="brand-text">
+        <div class="office-name" id="office-name" title="Office name">{{ $settings->office_name }}</div>
+        <div class="tagline" id="tagline" title="Tagline">{{ $settings->tagline }}</div>
+      </div>
+    </div>
+    <div class="clock-block">
+      <div class="greeting" id="greeting">Good day</div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="clock-date" id="clock-date"></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="shuffle-btn" title="Shuffle wallpaper" aria-label="Shuffle wallpaper" type="button">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      </button>
+      <button class="icon-btn" id="theme-btn" title="Toggle day / night" aria-label="Toggle theme" type="button">☾</button>
+      <nav class="view-switch" aria-label="View switcher">
+        <a href="{{ route('portal') }}" class="switch-btn {{ request()->routeIs('portal') ? 'active' : '' }}">Staff Portal</a>
+        <a href="{{ route('admin.index') }}" class="switch-btn {{ request()->routeIs('admin.*') ? 'active' : '' }}">Admin</a>
+      </nav>
+      @auth
+        <form method="POST" action="{{ route('logout') }}" style="display:inline">
+          @csrf
+          <button type="submit" class="btn btn-quiet btn-sm" title="Sign out" style="font-size:0.75rem;">Sign out</button>
+        </form>
+      @endauth
+    </div>
+  </header>
+
+  @yield('content')
+
+</div>
+
+@include('components.notice-modal')
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+window.__INITIAL_STATE__ = {
+  office: @json($settings->office_name),
+  tagline: @json($settings->tagline),
+  helpdesk: {
+    email: @json($settings->helpdesk_email),
+    ext: @json($settings->helpdesk_ext)
+  },
+  theme: @json($settings->theme),
+  wallpaper: {
+    enabled: @json((bool)$settings->wallpaper_enabled),
+    mode: @json($settings->wallpaper_mode),
+    customUrls: @json($settings->wallpaper_custom_urls ?? []),
+    interval: @json($settings->wallpaper_interval),
+    blur: @json($settings->wallpaper_blur),
+    veil: @json($settings->wallpaper_veil)
+  },
+  routes: {
+    portal: @json(route('portal')),
+    admin: @json(route('admin.index')),
+    postNotice: @json(route('notices.public_store')),
+  },
+  csrfToken: @json(csrf_token())
+};
+</script>
+
+@stack('scripts')
+
+</body>
+</html>
