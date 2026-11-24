@@ -7,7 +7,8 @@
   <meta name="theme-color" content="#F9F6F0" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1B1512" media="(prefers-color-scheme: dark)">
   <title>{{ $settings->office_name ?? 'Staff Hub' }} — Office Intranet</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
+  <link rel="icon" type="image/x-icon" href="{{ asset('bitmap_logo.ico') }}">
+  <link rel="shortcut icon" href="{{ asset('bitmap_logo.ico') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -73,7 +74,9 @@
   <!-- ================= HEADER ================= -->
   <header class="topbar">
     <div class="brand">
-      <a href="{{ route('portal') }}" class="brand-mark" style="text-decoration:none">🏡</a>
+      <a href="{{ route('portal') }}" class="brand-mark" style="text-decoration:none">
+        <img src="{{ asset('bitmap_logo.ico') }}" alt="{{ $settings->office_name ?? 'Staff Hub' }}" class="brand-logo-img">
+      </a>
       <div class="brand-text">
         <div class="office-name" id="office-name" title="Office name">{{ $settings->office_name }}</div>
         <div class="tagline" id="tagline" title="Tagline">{{ $settings->tagline }}</div>
