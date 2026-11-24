@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="day">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Hub — Office Intranet</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Cozy Intranet — "Warm Linen" daylight / "Cozy Espresso" night
+   ============================================================ */
+:root{
+  --bg:#F9F6F0;
+  --card:#FFFDF9;
+  --card-soft:#F6F1E8;
+  --border:#E8DFD1;
+  --border-strong:#D9CCB8;
+  --ink:#2C221E;
+  --muted:#8B7B6E;
+  --accent:#C86D44;
+  --accent-soft:rgba(200,109,68,.12);
+  --sage:#5E7A61;
+  --sage-soft:rgba(94,122,97,.14);
+  --amber:#A9762B;
+  --amber-soft:rgba(169,118,43,.15);
+  --danger:#B3452F;
+  --danger-soft:rgba(179,69,47,.12);
+  --veil-rgb:249,246,240;
+  --shadow:0 1px 2px rgba(44,34,30,.05),0 10px 28px rgba(44,34,30,.07);
+  --shadow-lift:0 2px 4px rgba(44,34,30,.06),0 16px 40px rgba(44,34,30,.12);
+  --bg-blur:28px;
+  --bg-veil-a:.55;
+  --radius:16px;
+  color-scheme:light;
+}
+[data-theme="night"]{
+  --bg:#1B1512;
+  --card:#261E1A;
+  --card-soft:#2E241F;
+  --border:#3A2E28;
+  --border-strong:#4A3B33;
+  --ink:#F4ECE1;
+  --muted:#A8968A;
+  --accent:#D98E5C;
+  --accent-soft:rgba(217,142,92,.16);
+  --sage:#8FB093;
+  --sage-soft:rgba(143,176,147,.16);
+  --amber:#D9A94F;
+  --amber-soft:rgba(217,169,79,.16);
+  --danger:#E0785A;
+  --danger-soft:rgba(224,120,90,.16);
+  --veil-rgb:27,21,18;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.4),0 16px 44px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  transition:background .4s ease,color .4s ease;
+}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:600;margin:0;line-height:1.2;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:.925rem;color:var(--ink)}
+a{color:inherit}
+::selection{background:var(--accent);color:#fff}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* ---------- Background wallpaper system ---------- */
+#bg-wrap{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.bg-layer{
+  position:absolute;inset:-9%;
+  background-size:cover;background-position:center;
+  opacity:0;
+  transition:opacity 2.2s ease;
+  filter:blur(var(--bg-blur)) saturate(1.05);
+  will-change:transform,opacity;
+}
+#bg-layer-a{animation:drift-a 52s ease-in-out infinite alternate}
+#bg-layer-b{animation:drift-b 64s ease-in-out infinite alternate}
+@keyframes drift-a{
+  from{transform:scale(1.04) translate3d(0,0,0)}
+  50%{transform:scale(1.1) translate3d(-1.6%,1.1%,0)}
+  to{transform:scale(1.06) translate3d(1.4%,-1.3%,0)}
+}
+@keyframes drift-b{
+  from{transform:scale(1.06) translate3d(1.2%,-.8%,0)}
+  50%{transform:scale(1.1) translate3d(1.5%,1.2%,0)}
+  to{transform:scale(1.04) translate3d(-1.4%,1%,0)}
+}
+#bg-bokeh{
+  position:absolute;inset:-9%;opacity:0;transition:opacity 2.2s ease;
+  background:
+    radial-gradient(circle 340px at 18% 28%,rgba(200,109,68,.38),transparent 70%),
+    radial-gradient(circle 420px at 78% 18%,rgba(169,118,43,.30),transparent 70%),
+    radial-gradient(circle 380px at 62% 72%,rgba(94,122,97,.28),transparent 70%),
+    radial-gradient(circle 300px at 30% 80%,rgba(200,109,68,.24),transparent 70%),
+    radial-gradient(circle 260px at 88% 62%,rgba(217,169,79,.22),transparent 70%),
+    radial-gradient(circle 500px at 45% 45%,rgba(232,223,209,.25),transparent 75%);
+  animation:drift-a 70s ease-in-out infinite alternate;
+}
+body.bg-bokeh #bg-bokeh{opacity:1}
+#bg-veil{
+  position:absolute;inset:0;
+  background:rgba(var(--veil-rgb),var(--bg-veil-a));
+  transition:background .4s ease;
+}
+@media (prefers-reduced-motion:reduce){
+  .bg-layer,#bg-bokeh{animation:none}
+  .bg-layer,#bg-bokeh,#bg-veil,body{transition-duration:.01s}
+}
+
+/* ---------- Layout shell ---------- */
+.shell{max-width:1280px;margin:0 auto;padding:22px clamp(14px,3vw,32px) 48px}
+
+/* ---------- Header ---------- */
+.topbar{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:16px 20px;box-shadow:var(--shadow);
+}
+.brand{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 300px}
+.brand-mark{
+  width:46px;height:46px;border-radius:14px;flex:none;
+  background:linear-gradient(140deg,var(--accent),var(--amber));
+  display:grid;place-items:center;font-size:22px;color:#fff;
+  box-shadow:0 4px 14px rgba(200,109,68,.35);
+}
+.brand-text{min-width:0}
+.office-name{
+  font-family:'Fraunces',serif;font-size:1.35rem;font-weight:600;
+  outline:none;border-radius:6px;padding:0 4px;margin-left:-4px;
+  border-bottom:1px dashed transparent;cursor:text;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.office-name:hover,.tagline:hover{border-bottom-color:var(--border-strong)}
+.office-name:focus,.tagline:focus{border-bottom-color:var(--accent);background:var(--accent-soft)}
+.tagline{
+  display:inline-block;font-size:.82rem;color:var(--muted);
+  outline:none;border-radius:6px;padding:0 4px;margin-left:-4px;
+  border-bottom:1px dashed transparent;cursor:text;max-width:100%;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.clock-block{margin-left:auto;text-align:right;flex:none}
+.clock{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.clock-date{font-size:.78rem;color:var(--muted)}
+.greeting{font-size:.78rem;color:var(--accent);font-weight:600}
+.topbar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.view-switch{display:flex;background:var(--card-soft);border:1px solid var(--border);border-radius:12px;padding:3px;gap:2px}
+.switch-btn{
+  border:none;background:transparent;color:var(--muted);
+  font-size:.82rem;font-weight:600;padding:7px 14px;border-radius:9px;
+  transition:all .2s ease;
+}
+.switch-btn.active{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(44,34,30,.12)}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  border:1px solid transparent;border-radius:11px;
+  background:var(--accent);color:#fff;
+  font-size:.85rem;font-weight:600;padding:9px 16px;min-height:38px;
+  transition:transform .15s ease,box-shadow .15s ease,filter .15s ease;
+  box-shadow:0 3px 10px rgba(200,109,68,.28);
+}
+.btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-ghost{
+  background:var(--card);border-color:var(--border);color:var(--ink);
+  box-shadow:none;
+}
+.btn-ghost:hover{border-color:var(--border-strong);background:var(--card-soft)}
+.btn-quiet{background:transparent;border:none;color:var(--muted);box-shadow:none;padding:7px 10px;min-height:34px}
+.btn-quiet:hover{color:var(--ink);background:var(--card-soft)}
+.btn-danger{background:var(--danger);box-shadow:none}
+.btn-sm{padding:6px 11px;min-height:32px;font-size:.78rem;border-radius:9px}
+.icon-btn{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  background:var(--card);border:1px solid var(--border);color:var(--ink);
+  font-size:1rem;transition:all .2s ease;box-shadow:none;
+}
+.icon-btn:hover{border-color:var(--border-strong);background:var(--card-soft)}
+.icon-btn.spinning svg{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Search row ---------- */
+.search-row{display:flex;align-items:center;gap:12px;margin:18px 2px 4px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1 1 320px;max-width:520px}
+.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+#search-input{
+  width:100%;padding:11px 46px 11px 42px;border-radius:13px;
+  border:1px solid var(--border);background:var(--card);
+  box-shadow:var(--shadow);transition:border-color .2s ease;
+}
+#search-input:focus{border-color:var(--accent);outline:none}
+#search-input::placeholder{color:var(--muted)}
+.kbd-hint{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-size:.7rem;color:var(--muted);border:1px solid var(--border);
+  border-radius:6px;padding:1px 7px;background:var(--card-soft);pointer-events:none;
+}
+.search-count{font-size:.78rem;color:var(--muted)}
+
+/* ---------- Main grid ---------- */
+.main-grid{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:22px;margin-top:16px;align-items:start}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 12px}
+.section-head h2{font-size:1.18rem}
+.section-head .hint{font-size:.76rem;color:var(--muted)}
+
+/* ---------- Service cards ---------- */
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:14px}
+.svc{
+  display:flex;flex-direction:column;gap:10px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;text-decoration:none;color:inherit;
+  box-shadow:var(--shadow);position:relative;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.svc:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--border-strong)}
+.svc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.svc-icon{
+  width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  font-size:21px;background:var(--accent-soft);flex:none;
+}
+.svc-name{font-family:'Fraunces',serif;font-size:1.06rem;font-weight:600}
+.svc-desc{font-size:.8rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.svc-go{position:absolute;right:14px;bottom:12px;font-size:.72rem;color:var(--accent);font-weight:700;opacity:0;transform:translateX(-4px);transition:all .18s ease}
+.svc:hover .svc-go{opacity:1;transform:translateX(0)}
+.badge{
+  font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  padding:3px 9px;border-radius:99px;white-space:nowrap;
+}
+.badge.online{background:var(--sage-soft);color:var(--sage)}
+.badge.maintenance{background:var(--amber-soft);color:var(--amber)}
+.badge.offline{background:var(--danger-soft);color:var(--danger)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.dot.online{background:var(--sage);box-shadow:0 0 0 3px var(--sage-soft)}
+.dot.maintenance{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+.dot.offline{background:var(--danger);box-shadow:0 0 0 3px var(--danger-soft)}
+.dot.idle{background:var(--muted)}
+
+/* ---------- Notice board ---------- */
+.card-panel{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  box-shadow:var(--shadow);padding:18px;
+}
+.notice-panel{position:sticky;top:18px}
+.notice-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.notice-head h2{font-size:1.18rem}
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.cat-tab{
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  font-size:.76rem;font-weight:600;padding:5px 12px;border-radius:99px;
+  transition:all .18s ease;
+}
+.cat-tab:hover{color:var(--ink);border-color:var(--border-strong)}
+.cat-tab.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.notices-list{display:flex;flex-direction:column;gap:10px;max-height:560px;overflow-y:auto;padding-right:2px}
+.notice{
+  background:var(--card-soft);border:1px solid var(--border);border-radius:13px;
+  padding:13px 14px;position:relative;
+}
+.notice.pinned{border-color:var(--accent);background:var(--accent-soft)}
+.notice-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.notice-title{font-weight:700;font-size:.9rem;flex:1;min-width:120px}
+.notice-body{font-size:.8rem;color:var(--muted);margin:2px 0 6px}
+.notice-meta{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--muted)}
+.chip-cat{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:99px;background:var(--sage-soft);color:var(--sage)}
+.chip-cat.it{background:var(--accent-soft);color:var(--accent)}
+.chip-cat.reminder{background:var(--amber-soft);color:var(--amber)}
+.chip-prio{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:99px}
+.chip-prio.high{background:var(--danger-soft);color:var(--danger)}
+.chip-prio.normal{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.pin-flag{color:var(--accent);font-size:.72rem;font-weight:700}
+.notice-del{
+  position:absolute;top:8px;right:8px;border:none;background:transparent;
+  color:var(--muted);opacity:0;font-size:.9rem;line-height:1;padding:4px 6px;border-radius:7px;
+  transition:all .15s ease;
+}
+.notice:hover .notice-del{opacity:1}
+.notice-del:hover{color:var(--danger);background:var(--danger-soft)}
+.empty-note{font-size:.82rem;color:var(--muted);text-align:center;padding:26px 10px;border:1px dashed var(--border);border-radius:12px}
+
+/* ---------- Bookmarks + helpdesk ---------- */
+.bottom-strip{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:22px;margin-top:22px}
+.bookmarks-panel{display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip-link{
+  display:inline-flex;align-items:center;gap:7px;text-decoration:none;
+  border:1px solid var(--border);background:var(--card);color:var(--ink);
+  font-size:.8rem;font-weight:600;padding:8px 14px;border-radius:99px;
+  box-shadow:var(--shadow);transition:all .16s ease;min-height:36px;
+}
+.chip-link:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.chip-link .dot{width:6px;height:6px;background:var(--accent);box-shadow:none;opacity:.6}
+.helpdesk{
+  background:linear-gradient(150deg,var(--accent-soft),var(--sage-soft));
+  border:1px solid var(--border);border-radius:20px;padding:18px;box-shadow:var(--shadow);
+}
+.helpdesk h3{font-size:1rem;margin-bottom:2px}
+.helpdesk .sub{font-size:.76rem;color:var(--muted);margin-bottom:12px}
+.hd-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px dashed var(--border)}
+.hd-row:first-of-type{border-top:none}
+.hd-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.hd-value{font-size:.86rem;font-weight:600;word-break:break-all}
+.copy-btn{border:1px solid var(--border);background:var(--card);border-radius:9px;padding:6px 10px;font-size:.74rem;font-weight:700;color:var(--ink);min-height:32px;transition:all .15s ease}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- Footer ---------- */
+.foot{margin-top:34px;text-align:center;font-size:.74rem;color:var(--muted)}
+.foot .heart{color:var(--accent)}
+
+/* ---------- Admin view ---------- */
+.admin-wrap{max-width:900px;margin:20px auto 0}
+.admin-intro{margin:0 2px 18px}
+.admin-intro h2{font-size:1.5rem;margin-bottom:2px}
+.admin-intro p{margin:0;color:var(--muted);font-size:.86rem}
+.admin-section{margin-bottom:20px}
+.admin-section h3{font-size:1.06rem;display:flex;align-items:center;gap:9px;margin-bottom:2px}
+.admin-section .sec-desc{font-size:.78rem;color:var(--muted);margin:0 0 12px 2px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.field input,.field select,.field textarea{
+  border:1px solid var(--border);background:var(--card-soft);
+  border-radius:10px;padding:9px 12px;transition:border-color .2s ease;width:100%;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);outline:none;background:var(--card)}
+.field input.invalid{border-color:var(--danger);background:var(--danger-soft)}
+.field .note{font-size:.7rem;color:var(--muted)}
+.row-list{display:flex;flex-direction:column;gap:10px}
+.row-item{
+  display:grid;gap:8px;align-items:center;
+  background:var(--card-soft);border:1px solid var(--border);border-radius:13px;padding:11px 12px;
+}
+.svc-row{grid-template-columns:52px minmax(0,1fr) minmax(0,1.5fr) minmax(0,1.2fr) 138px 92px}
+.svc-row .icon-input{text-align:center;font-size:1.1rem}
+.row-tools{display:flex;gap:3px;justify-content:flex-end}
+.tool-btn{
+  border:1px solid var(--border);background:var(--card);border-radius:8px;
+  width:28px;height:28px;display:grid;place-items:center;font-size:.72rem;color:var(--muted);
+  transition:all .15s ease;padding:0;
+}
+.tool-btn:hover{color:var(--ink);border-color:var(--border-strong)}
+.tool-btn.danger:hover{color:var(--danger);border-color:var(--danger)}
+.bookmark-row{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr) 40px}
+.notice-row{grid-template-columns:minmax(0,1fr) auto auto}
+.notice-row .nr-title{font-weight:600;font-size:.86rem}
+.notice-row .nr-meta{font-size:.72rem;color:var(--muted)}
+.range-row{display:flex;align-items:center;gap:12px}
+.range-row input[type=range]{flex:1;accent-color:var(--accent);height:34px}
+.range-val{font-size:.78rem;font-weight:700;min-width:52px;text-align:right;font-variant-numeric:tabular-nums;color:var(--accent)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:4px 0}
+.toggle-row .t-label{font-size:.88rem;font-weight:600}
+.toggle-row .t-sub{font-size:.74rem;color:var(--muted)}
+.switch{position:relative;width:44px;height:25px;flex:none}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.slider-ui{
+  position:absolute;inset:0;border-radius:99px;background:var(--border-strong);
+  transition:background .2s ease;cursor:pointer;
+}
+.slider-ui::before{
+  content:"";position:absolute;width:19px;height:19px;border-radius:50%;
+  background:#fff;top:3px;left:3px;transition:transform .2s ease;
+  box-shadow:0 1px 3px rgba(0,0,0,.25);
+}
+.switch input:checked + .slider-ui{background:var(--sage)}
+.switch input:checked + .slider-ui::before{transform:translateX(19px)}
+.status-line{display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--muted);padding:9px 12px;background:var(--card-soft);border:1px dashed var(--border);border-radius:10px}
+.backup-actions{display:flex;gap:10px;flex-wrap:wrap}
+.admin-foot-note{font-size:.72rem;color:var(--muted);margin-top:10px}
+
+/* ---------- Modal ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(28,20,16,.45);backdrop-filter:blur(4px);
+  display:grid;place-items:center;z-index:50;padding:18px;
+  opacity:0;pointer-events:none;transition:opacity .22s ease;
+}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{
+  width:min(480px,100%);background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:24px;box-shadow:var(--shadow-lift);
+  transform:translateY(14px) scale(.98);transition:transform .22s ease;
+  max-height:90vh;overflow-y:auto;
+}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal h3{font-size:1.25rem;margin-bottom:14px}
+.modal .field{margin-bottom:12px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+.check-row{display:flex;align-items:center;gap:9px;font-size:.86rem;font-weight:600}
+.check-row input{width:17px;height:17px;accent-color:var(--accent)}
+
+/* ---------- Toast ---------- */
+#toast{
+  position:fixed;bottom:26px;left:50%;transform:translate(-50%,16px);
+  background:var(--ink);color:var(--bg);font-size:.84rem;font-weight:600;
+  padding:11px 20px;border-radius:12px;box-shadow:var(--shadow-lift);
+  opacity:0;pointer-events:none;transition:all .25s ease;z-index:60;max-width:88vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1060px){
+  .main-grid,.bottom-strip{grid-template-columns:1fr}
+  .notice-panel{position:static}
+  .notices-list{max-height:420px}
+}
+@media (max-width:720px){
+  .clock-block{margin-left:0;text-align:left}
+  .topbar{gap:12px}
+  .svc-row{grid-template-columns:44px 1fr;grid-auto-rows:auto}
+  .svc-row .url-input,.svc-row .desc-input{grid-column:1/-1}
+  .svc-row .status-select{grid-column:1}
+  .svc-row .row-tools{grid-column:2}
+  .bookmark-row{grid-template-columns:1fr}
+  .field-grid{grid-template-columns:1fr}
+  .clock{font-size:1.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Dreamy blurred wallpaper -->
+<div id="bg-wrap" aria-hidden="true">
+  <div id="bg-layer-a"></div>
+  <div id="bg-layer-b"></div>
+  <div id="bg-bokeh"></div>
+  <div id="bg-veil"></div>
+</div>
+
+<div class="shell">
+
+  <!-- ================= HEADER ================= -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">🏡</div>
+      <div class="brand-text">
+        <div class="office-name" id="office-name" contenteditable="true" spellcheck="false" data-placeholder="Office name"></div>
+        <div class="tagline" id="tagline" contenteditable="true" spellcheck="false" data-placeholder="Add a tagline…"></div>
+      </div>
+    </div>
+    <div class="clock-block">
+      <div class="greeting" id="greeting">Good day</div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="clock-date" id="clock-date"></div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="shuffle-btn" title="Shuffle wallpaper" aria-label="Shuffle wallpaper">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      </button>
+      <button class="icon-btn" id="theme-btn" title="Toggle day / night" aria-label="Toggle theme">☾</button>
+      <nav class="view-switch" aria-label="View switcher">
+        <button class="switch-btn active" data-view="portal">Staff Portal</button>
+        <button class="switch-btn" data-view="admin">Admin</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================= STAFF PORTAL ================= -->
+  <main id="view-portal">
+    <div class="search-row">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search-input" type="search" placeholder="Search services and bookmarks…" autocomplete="off" aria-label="Search services and bookmarks">
+        <span class="kbd-hint">/</span>
+      </div>
+      <span class="search-count" id="search-count"></span>
+    </div>
+
+    <div class="main-grid">
+      <section aria-label="Service launcher">
+        <div class="section-head">
+          <h2>Service Launcher</h2>
+          <span class="hint">click a card to open</span>
+        </div>
+        <div class="services-grid" id="services-grid"></div>
+      </section>
+
+      <aside class="card-panel notice-panel" aria-label="Office notice board">
+        <div class="notice-head">
+          <h2>Notice Board</h2>
+          <button class="btn btn-sm" id="post-btn">＋ Post</button>
+        </div>
+        <div class="cat-tabs" id="cat-tabs">
+          <button class="cat-tab active" data-cat="all">All</button>
+          <button class="cat-tab" data-cat="it">IT Notice</button>
+          <button class="cat-tab" data-cat="general">General</button>
+          <button class="cat-tab" data-cat="reminder">Reminder</button>
+        </div>
+        <div class="notices-list" id="notices-list"></div>
+      </aside>
+    </div>
+
+    <div class="bottom-strip">
+      <section class="card-panel bookmarks-panel" aria-label="Quick bookmarks">
+        <div class="section-head" style="margin:0 0 2px">
+          <h2>Quick Bookmarks</h2>
+        </div>
+        <div class="chips" id="bookmarks-chips"></div>
+      </section>
+      <section class="helpdesk" aria-label="IT Helpdesk">
+        <h3>IT Helpdesk</h3>
+        <div class="sub">Something creaking? We'll bring oil.</div>
+        <div class="hd-row">
+          <div>
+            <div class="hd-label">Email</div>
+            <div class="hd-value" id="hd-email"></div>
+          </div>
+          <button class="copy-btn" data-copy-target="hd-email">Copy</button>
+        </div>
+        <div class="hd-row">
+          <div>
+            <div class="hd-label">Phone extension</div>
+            <div class="hd-value" id="hd-ext"></div>
+          </div>
+          <button class="copy-btn" data-copy-target="hd-ext">Copy</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="foot">Brewed with <span class="heart">♥</span> by the office IT crew — press <b>/</b> to search, anywhere.</div>
+  </main>
+
+  <!-- ================= ADMIN ================= -->
+  <main id="view-admin" hidden>
+    <div class="admin-wrap">
+      <div class="admin-intro">
+        <h2>Admin Settings</h2>
+        <p>Everything here saves instantly to this browser. Use Backup at the bottom to carry it to other machines.</p>
+      </div>
+
+      <!-- Identity -->
+      <section class="card-panel admin-section">
+        <h3><span aria-hidden="true">🏛️</span> Portal Identity &amp; Helpdesk</h3>
+        <p class="sec-desc">The name on the door and where to reach the friendly IT folks.</p>
+        <div class="field-grid">
+          <div class="field">
+            <label for="adm-office">Office name</label>
+            <input id="adm-office" type="text" maxlength="60">
+          </div>
+          <div class="field">
+            <label for="adm-tagline">Tagline</label>
+            <input id="adm-tagline" type="text" maxlength="90">
+          </div>
+          <div class="field">
+            <label for="adm-email">Helpdesk email</label>
+            <input id="adm-email" type="email">
+          </div>
+          <div class="field">
+            <label for="adm-ext">Helpdesk extension</label>
+            <input id="adm-ext" type="text" maxlength="12">
+          </div>
+        </div>
+      </section>
+
+      <!-- Services -->
+      <section class="card-panel admin-section">
+        <h3><span aria-hidden="true">🧰</span> Service Launcher</h3>
+        <p class="sec-desc">Add, edit, reorder or remove the launcher cards. URLs must start with http:// or https://.</p>
+        <div class="row-list" id="admin-services"></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" id="add-service-btn">＋ Add service</button></div>
+      </section>
+
+      <!-- Wallpaper -->
+      <section class="card-panel admin-section">
+        <h3><span aria-hidden="true">🖼️</span> Ambient Wallpaper</h3>
+        <p class="sec-desc">The soft, drifting backdrop behind everything. Sliders preview live.</p>
+        <div class="toggle-row" style="margin-bottom:10px">
+          <div>
+            <div class="t-label">Wallpaper enabled</div>
+            <div class="t-sub">When off, a warm bokeh gradient shows instead.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="adm-wp-enabled"><span class="slider-ui"></span></label>
+        </div>
+        <div class="field-grid" style="margin-bottom:12px">
+          <div class="field">
+            <label for="adm-wp-interval">Auto-refresh interval</label>
+            <select id="adm-wp-interval">
+              <option value="0">Off</option>
+              <option value="30000">Every 30 s</option>
+              <option value="60000">Every 1 min</option>
+              <option value="300000">Every 5 min</option>
+              <option value="900000">Every 15 min</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="adm-wp-source">Image source</label>
+            <select id="adm-wp-source">
+              <option value="picsum">Lorem Picsum (random)</option>
+              <option value="custom">Custom URL list</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="custom-urls-field" style="margin-bottom:14px">
+          <label for="adm-wp-custom">Custom image URLs (one per line)</label>
+          <textarea id="adm-wp-custom" rows="3" placeholder="https://…&#10;https://…"></textarea>
+          <span class="note">Cycled in order on each refresh or shuffle.</span>
+        </div>
+        <div class="field" style="margin-bottom:8px">
+          <label>Blur softness</label>
+          <div class="range-row">
+            <input type="range" id="adm-wp-blur" min="0" max="60" step="2">
+            <span class="range-val" id="blur-val"></span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label>Frosted veil opacity</label>
+          <div class="range-row">
+            <input type="range" id="adm-wp-veil" min="0" max="90" step="5">
+            <span class="range-val" id="veil-val"></span>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-sm" id="wp-refresh-btn">⟳ Refresh wallpaper now</button>
+          <div class="status-line" style="flex:1;min-width:220px">
+            <span class="dot idle" id="bg-status-dot"></span>
+            <span id="bg-status-text">Starting…</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notices + bookmarks admin -->
+      <section class="card-panel admin-section">
+        <h3><span aria-hidden="true">📎</span> Announcements</h3>
+        <p class="sec-desc">Pin the important ones to the top of the board.</p>
+        <div class="row-list" id="admin-notices"></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" id="adm-new-notice-btn">＋ New notice</button></div>
+      </section>
+
+      <section class="card-panel admin-section">
+        <h3><span aria-hidden="true">🔗</span> Quick Bookmarks</h3>
+        <p class="sec-desc">Little chips for the links everyone reaches for daily.</p>
+        <div class="row-list" id="admin-bookmarks"></div>
+        <div style="margin-top:12px"><button class="btn btn-ghost btn-sm" id="add-bookmark-btn">＋ Add bookmark</button></div>
+      </section>
+
+      <!-- Backup -->
+      <section class="card-panel admin-section">
+        <h3><span aria-hidden="true">🧷</span> Backup &amp; Restore</h3>
+        <p class="sec-desc">The whole portal lives in this browser's localStorage — export it to move or keep a copy.</p>
+        <div class="backup-actions">
+          <button class="btn btn-sm" id="export-btn">⬇ Export config (.json)</button>
+          <button class="btn btn-ghost btn-sm" id="import-btn">⬆ Import config</button>
+          <button class="btn btn-danger btn-sm" id="reset-btn">Reset to defaults</button>
+          <input type="file" id="import-file" accept="application/json,.json" hidden>
+        </div>
+        <div class="admin-foot-note">Importing replaces everything currently configured here.</div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- ================= NOTICE MODAL ================= -->
+<div class="modal-overlay" id="notice-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h3 id="modal-title">Post a notice</h3>
+    <div class="field">
+      <label for="nm-title">Title</label>
+      <input id="nm-title" type="text" maxlength="80" placeholder="e.g. Printer on floor 2 is grumpy again">
+    </div>
+    <div class="field">
+      <label for="nm-body">Details</label>
+      <textarea id="nm-body" rows="3" maxlength="400" placeholder="What should people know or do?"></textarea>
+    </div>
+    <div class="field-grid">
+      <div class="field">
+        <label for="nm-cat">Category</label>
+        <select id="nm-cat">
+          <option value="general">General</option>
+          <option value="it">IT Notice</option>
+          <option value="reminder">Reminder</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="nm-prio">Priority</label>
+        <select id="nm-prio">
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+    </div>
+    <label class="check-row" style="margin-top:6px"><input type="checkbox" id="nm-pin"> Pin to top of the board</label>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="nm-cancel">Cancel</button>
+      <button class="btn" id="nm-save">Publish</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
+const LS_KEY = 'cozy-intranet-v1';
+
+/* ---------------- State ---------------- */
+const DEFAULTS = () => ({
+  version: 1,
+  office: 'Nordvik & Co. — Staff Hub',
+  tagline: 'A calm place to start the workday.',
+  helpdesk: { email: 'helpdesk@nordvik.local', ext: 'x4210' },
+  theme: null,
+  wallpaper: { enabled: true, mode: 'picsum', customUrls: [], interval: 300000, blur: 28, veil: 55 },
+  services: [
+    { id: uid(), icon: '☁️', name: 'Nextcloud',     desc: 'Files, calendar and shared drives.',        url: 'https://cloud.example.com',   status: 'online' },
+    { id: uid(), icon: '📝', name: 'ONLYOFFICE',    desc: 'Docs, sheets and slides in the browser.',   url: 'https://office.example.com',  status: 'online' },
+    { id: uid(), icon: '🗄️', name: 'Office NAS',    desc: 'Backups, archives and the media library.',  url: 'http://nas.local',            status: 'maintenance' },
+    { id: uid(), icon: '📌', name: 'Project Tracker', desc: 'Sprints, tasks and weekly checkpoints.',  url: 'https://tracker.example.com', status: 'online' },
+    { id: uid(), icon: '✉️', name: 'Web Mail',      desc: 'Company email on the web client.',          url: 'https://mail.example.com',    status: 'offline' },
+  ],
+  notices: [
+    { id: uid(), title: 'Weekly backup window', body: 'NAS backup runs Friday 22:00–01:00. File shares may pause briefly — save your work early.', category: 'it', priority: 'high', pinned: true, ts: Date.now() - 5 * 3600e3 },
+    { id: uid(), title: 'Kitchen: new coffee roast', body: 'The dark roast from the local roaster is restocked. Please label your mugs before Friday.', category: 'general', priority: 'normal', pinned: false, ts: Date.now() - 26 * 3600e3 },
+    { id: uid(), title: 'Fire drill Thursday 10:00', body: 'Assembly point is the courtyard. Team leads, bring the roster.', category: 'reminder', priority: 'normal', pinned: false, ts: Date.now() - 50 * 3600e3 },
+  ],
+  bookmarks: [
+    { id: uid(), label: 'Wi-Fi guest pass', url: 'https://example.com/guest-wifi' },
+    { id: uid(), label: 'Desk booking',     url: 'https://example.com/desks' },
+    { id: uid(), label: 'Leave request',    url: 'https://example.com/leave' },
+    { id: uid(), label: 'Printer queue',    url: 'http://print.local/queue' },
+    { id: uid(), label: 'Expenses',         url: 'https://example.com/expenses' },
+  ],
+});
+
+function load() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return DEFAULTS();
+    const data = JSON.parse(raw);
+    const d = DEFAULTS();
+    return {
+      ...d, ...data,
+      helpdesk: { ...d.helpdesk, ...(data.helpdesk || {}) },
+      wallpaper: { ...d.wallpaper, ...(data.wallpaper || {}) },
+      services: Array.isArray(data.services) ? data.services : d.services,
+      notices: Array.isArray(data.notices) ? data.notices : d.notices,
+      bookmarks: Array.isArray(data.bookmarks) ? data.bookmarks : d.bookmarks,
+    };
+  } catch { return DEFAULTS(); }
+}
+let state = load();
+function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch {} }
+
+/* ---------------- Helpers ---------------- */
+function safeUrl(u) {
+  try { const url = new URL(String(u).trim(), location.href); return (url.protocol === 'http:' || url.protocol === 'https:') ? url.href : null; }
+  catch { return null; }
+}
+function ago(ts) {
+  const s = (Date.now() - ts) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s / 60) + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+  return Math.floor(s / 86400) + 'd ago';
+}
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    let ok = false; try { ok = document.execCommand('copy'); } catch {}
+    ta.remove(); return ok;
+  }
+}
+
+/* ---------------- Theme ---------------- */
+function currentTheme() {
+  return state.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'day');
+}
+function applyTheme() {
+  const t = currentTheme();
+  document.documentElement.dataset.theme = t;
+  $('#theme-btn').textContent = t === 'day' ? '☾' : '☀';
+  $('#theme-btn').title = t === 'day' ? 'Switch to Cozy Espresso night' : 'Switch to Warm Linen day';
+}
+$('#theme-btn').addEventListener('click', () => {
+  state.theme = currentTheme() === 'day' ? 'night' : 'day';
+  save(); applyTheme();
+});
+
+/* ---------------- Clock ---------------- */
+function tickClock() {
+  const now = new Date();
+  $('#clock').textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  $('#clock-date').textContent = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const h = now.getHours();
+  $('#greeting').textContent = h < 5 ? '🌙 Late shift' : h < 12 ? '☀️ Good morning' : h < 18 ? '🌤 Good afternoon' : '🌙 Good evening';
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ---------------- Header identity (contenteditable) ---------------- */
+function renderIdentity() {
+  const nameEl = $('#office-name'), tagEl = $('#tagline');
+  if (document.activeElement !== nameEl) nameEl.textContent = state.office;
+  if (document.activeElement !== tagEl) tagEl.textContent = state.tagline;
+  $('#hd-email').textContent = state.helpdesk.email;
+  $('#hd-ext').textContent = state.helpdesk.ext;
+  document.title = state.office + ' — Staff Hub';
+}
+function bindEditable(el, getter, setter) {
+  el.addEventListener('blur', () => {
+    const v = el.textContent.trim();
+    setter(v || getter());
+    if (!v) el.textContent = getter();
+    save(); renderIdentity(); syncAdminInputs();
+  });
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+}
+bindEditable($('#office-name'), () => state.office, v => state.office = v);
+bindEditable($('#tagline'), () => state.tagline, v => state.tagline = v);
+
+/* ---------------- Wallpaper engine ---------------- */
+const layerA = $('#bg-layer-a'), layerB = $('#bg-layer-b');
+const bg = { showing: 'a', timer: null, customIdx: -1, status: 'idle' };
+
+function applyBgVars() {
+  const r = document.documentElement.style;
+  r.setProperty('--bg-blur', state.wallpaper.blur + 'px');
+  r.setProperty('--bg-veil-a', (state.wallpaper.veil / 100).toFixed(2));
+}
+function setBgStatus(kind, text) {
+  bg.status = kind;
+  const dot = $('#bg-status-dot'), txt = $('#bg-status-text');
+  if (!dot) return;
+  dot.className = 'dot ' + (kind === 'live' ? 'online' : kind === 'fallback' ? 'maintenance' : 'idle');
+  txt.textContent = text;
+}
+function bgUrl() {
+  if (state.wallpaper.mode === 'custom') {
+    const urls = state.wallpaper.customUrls.filter(Boolean);
+    if (urls.length) { bg.customIdx = (bg.customIdx + 1) % urls.length; return urls[bg.customIdx]; }
+  }
+  return 'https://picsum.photos/1920/1080?random=' + Date.now() + '-' + Math.floor(Math.random() * 1e4);
+}
+function showBokeh(msg) {
+  document.body.classList.add('bg-bokeh');
+  layerA.style.opacity = 0; layerB.style.opacity = 0;
+  setBgStatus('fallback', msg);
+}
+function refreshWallpaper(manual = false) {
+  applyBgVars();
+  if (!state.wallpaper.enabled) {
+    document.body.classList.add('bg-bokeh');
+    layerA.style.opacity = 0; layerB.style.opacity = 0;
+    setBgStatus('idle', 'Wallpaper is off — warm bokeh gradient showing.');
+    return;
+  }
+  document.body.classList.remove('bg-bokeh');
+  const url = bgUrl();
+  const srcName = state.wallpaper.mode === 'custom' ? 'custom URL' : 'Lorem Picsum';
+  setBgStatus('idle', 'Loading fresh image…');
+  if (manual) $('#shuffle-btn').classList.add('spinning');
+  const img = new Image();
+  let done = false;
+  const finish = fn => { if (done) return; done = true; clearTimeout(timer); $('#shuffle-btn').classList.remove('spinning'); fn(); };
+  const timer = setTimeout(() => finish(() => showBokeh('Image timed out (8 s) — showing warm bokeh instead.')), 8000);
+  img.onload = () => finish(() => {
+    const show = bg.showing === 'a' ? layerB : layerA;
+    const hide = bg.showing === 'a' ? layerA : layerB;
+    show.style.backgroundImage = `url("${url}")`;
+    // force reflow so the opacity transition always runs
+    void show.offsetWidth;
+    show.style.opacity = 1; hide.style.opacity = 0;
+    bg.showing = bg.showing === 'a' ? 'b' : 'a';
+    const t = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    setBgStatus('live', `Live · ${srcName} · updated ${t}`);
+  });
+  img.onerror = () => finish(() => showBokeh(`${srcName} unreachable — warm bokeh fallback active.`));
+  img.src = url;
+}
+function restartBgTimer() {
+  clearInterval(bg.timer);
+  if (state.wallpaper.enabled && state.wallpaper.interval > 0) {
+    bg.timer = setInterval(() => refreshWallpaper(false), state.wallpaper.interval);
+  }
+}
+
+/* ---------------- Services ---------------- */
+const STATUS_LABEL = { online: 'Online', maintenance: 'Maintenance', offline: 'Offline' };
+let searchQuery = '';
+function matches(...fields) {
+  if (!searchQuery) return true;
+  return fields.join(' ').toLowerCase().includes(searchQuery);
+}
+function renderServices() {
+  const list = state.services.filter(s => matches(s.name, s.desc, s.status));
+  const grid = $('#services-grid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-note" style="grid-column:1/-1">Nothing matches “${esc(searchQuery)}”.</div>`;
+  } else {
+    grid.innerHTML = list.map(s => {
+      const href = safeUrl(s.url) || '#';
+      return `<a class="svc" data-id="${s.id}" href="${esc(href)}" target="_blank" rel="noopener">
+        <div class="svc-top">
+          <span class="svc-icon">${esc(s.icon || '🔧')}</span>
+          <span class="badge ${s.status}">${STATUS_LABEL[s.status] || s.status}</span>
+        </div>
+        <div><div class="svc-name">${esc(s.name)}</div></div>
+        <div class="svc-desc">${esc(s.desc)}</div>
+        <span class="svc-go">Open ↗</span>
+      </a>`;
+    }).join('');
+  }
+  updateSearchCount();
+}
+$('#services-grid').addEventListener('click', e => {
+  const a = e.target.closest('.svc'); if (!a) return;
+  const s = state.services.find(x => x.id === a.dataset.id);
+  if (!s || !safeUrl(s.url)) { e.preventDefault(); toast('That service has no valid URL yet (needs http:// or https://).'); }
+});
+
+/* ---------------- Notices ---------------- */
+let noticeCat = 'all';
+const CAT_LABEL = { it: 'IT Notice', general: 'General', reminder: 'Reminder' };
+function renderNotices() {
+  const list = state.notices
+    .filter(n => noticeCat === 'all' || n.category === noticeCat)
+    .sort((a, b) => (b.pinned - a.pinned) || (b.ts - a.ts));
+  const el = $('#notices-list');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-note">No notices here yet.<br>The quiet kind of Monday.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(n => `
+    <article class="notice ${n.pinned ? 'pinned' : ''}" data-id="${n.id}">
+      <div class="notice-top">
+        <span class="notice-title">${esc(n.title)}</span>
+        <span class="chip-cat ${n.category}">${CAT_LABEL[n.category] || n.category}</span>
+        <span class="chip-prio ${n.priority}">${n.priority === 'high' ? 'High' : 'Normal'}</span>
+      </div>
+      <div class="notice-body">${esc(n.body)}</div>
+      <div class="notice-meta">
+        ${n.pinned ? '<span class="pin-flag">📌 Pinned</span>' : ''}
+        <span>${ago(n.ts)}</span>
+      </div>
+      <button class="notice-del" title="Delete notice" aria-label="Delete notice">✕</button>
+    </article>`).join('');
+}
+$('#notices-list').addEventListener('click', e => {
+  const btn = e.target.closest('.notice-del'); if (!btn) return;
+  const id = btn.closest('.notice').dataset.id;
+  const n = state.notices.find(x => x.id === id);
+  if (n && confirm(`Delete “${n.title}”?`)) {
+    state.notices = state.notices.filter(x => x.id !== id);
+    save(); renderNotices(); renderAdminNotices(); toast('Notice removed.');
+  }
+});
+$('#cat-tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.cat-tab'); if (!tab) return;
+  noticeCat = tab.dataset.cat;
+  $$('#cat-tabs .cat-tab').forEach(t => t.classList.toggle('active', t === tab));
+  renderNotices();
+});
+
+/* ---------------- Bookmarks ---------------- */
+function renderBookmarks() {
+  const list = state.bookmarks.filter(b => matches(b.label, b.url));
+  const el = $('#bookmarks-chips');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-note" style="width:100%">${searchQuery ? 'No bookmarks match.' : 'No bookmarks yet — add some in Admin.'}</div>`;
+  } else {
+    el.innerHTML = list.map(b => {
+      const href = safeUrl(b.url) || '#';
+      return `<a class="chip-link" data-id="${b.id}" href="${esc(href)}" target="_blank" rel="noopener"><span class="dot"></span>${esc(b.label)}</a>`;
+    }).join('');
+  }
+  updateSearchCount();
+}
+$('#bookmarks-chips').addEventListener('click', e => {
+  const a = e.target.closest('.chip-link'); if (!a) return;
+  const b = state.bookmarks.find(x => x.id === a.dataset.id);
+  if (!b || !safeUrl(b.url)) { e.preventDefault(); toast('Bookmark has no valid URL (needs http:// or https://).'); }
+});
+
+/* ---------------- Search ---------------- */
+function updateSearchCount() {
+  const el = $('#search-count');
+  if (!searchQuery) { el.textContent = ''; return; }
+  const s = state.services.filter(x => matches(x.name, x.desc, x.status)).length;
+  const b = state.bookmarks.filter(x => matches(x.label, x.url)).length;
+  el.textContent = `${s} service${s === 1 ? '' : 's'} · ${b} bookmark${b === 1 ? '' : 's'}`;
+}
+$('#search-input').addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  renderServices(); renderBookmarks();
+});
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+  if (e.key === '/' && !typing) { e.preventDefault(); $('#search-input').focus(); }
+  if (e.key === 'Escape') {
+    if ($('#notice-modal').classList.contains('open')) closeModal();
+    else if (document.activeElement === $('#search-input')) { $('#search-input').value = ''; searchQuery = ''; renderServices(); renderBookmarks(); $('#search-input').blur(); }
+  }
+});
+
+/* ---------------- Helpdesk copy ---------------- */
+$$('.copy-btn').forEach(btn => btn.addEventListener('click', async () => {
+  const ok = await copyText($('#' + btn.dataset.copyTarget).textContent.trim());
+  toast(ok ? 'Copied to clipboard ☕' : 'Copy failed — select it manually.');
+}));
+
+/* ---------------- Notice modal ---------------- */
+function openModal() {
+  $('#nm-title').value = ''; $('#nm-body').value = '';
+  $('#nm-cat').value = 'general'; $('#nm-prio').value = 'normal'; $('#nm-pin').checked = false;
+  $('#notice-modal').classList.add('open');
+  setTimeout(() => $('#nm-title').focus(), 60);
+}
+function closeModal() { $('#notice-modal').classList.remove('open'); }
+$('#post-btn').addEventListener('click', openModal);
+$('#adm-new-notice-btn').addEventListener('click', openModal);
+$('#nm-cancel').addEventListener('click', closeModal);
+$('#notice-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+$('#nm-save').addEventListener('click', () => {
+  const title = $('#nm-title').value.trim();
+  if (!title) { $('#nm-title').focus(); toast('Give the notice a title first.'); return; }
+  state.notices.unshift({
+    id: uid(), title,
+    body: $('#nm-body').value.trim() || '—',
+    category: $('#nm-cat').value,
+    priority: $('#nm-prio').value,
+    pinned: $('#nm-pin').checked,
+    ts: Date.now(),
+  });
+  save(); renderNotices(); renderAdminNotices(); closeModal();
+  toast('Notice posted 📌'.slice(0, 100));
+});
+
+/* ---------------- Admin: identity inputs ---------------- */
+function syncAdminInputs() {
+  $('#adm-office').value = state.office;
+  $('#adm-tagline').value = state.tagline;
+  $('#adm-email').value = state.helpdesk.email;
+  $('#adm-ext').value = state.helpdesk.ext;
+  $('#adm-wp-enabled').checked = state.wallpaper.enabled;
+  $('#adm-wp-interval').value = String(state.wallpaper.interval);
+  $('#adm-wp-source').value = state.wallpaper.mode;
+  $('#adm-wp-custom').value = state.wallpaper.customUrls.join('\n');
+  $('#adm-wp-blur').value = state.wallpaper.blur;
+  $('#adm-wp-veil').value = state.wallpaper.veil;
+  $('#blur-val').textContent = state.wallpaper.blur + 'px';
+  $('#veil-val').textContent = state.wallpaper.veil + '%';
+  $('#custom-urls-field').style.display = state.wallpaper.mode === 'custom' ? '' : 'none';
+}
+$('#adm-office').addEventListener('input', e => { state.office = e.target.value; save(); renderIdentity(); });
+$('#adm-tagline').addEventListener('input', e => { state.tagline = e.target.value; save(); renderIdentity(); });
+$('#adm-email').addEventListener('input', e => { state.helpdesk.email = e.target.value; save(); renderIdentity(); });
+$('#adm-ext').addEventListener('input', e => { state.helpdesk.ext = e.target.value; save(); renderIdentity(); });
+
+/* ---------------- Admin: services ---------------- */
+function renderAdminServices() {
+  $('#admin-services').innerHTML = state.services.map((s, i) => `
+    <div class="row-item svc-row" data-id="${s.id}">
+      <input class="icon-input" data-f="icon" value="${esc(s.icon)}" maxlength="4" aria-label="Icon">
+      <input data-f="name" value="${esc(s.name)}" maxlength="40" aria-label="Name">
+      <input class="url-input" data-f="url" value="${esc(s.url)}" placeholder="https://…" aria-label="URL">
+      <input class="desc-input" data-f="desc" value="${esc(s.desc)}" maxlength="90" aria-label="Description">
+      <select class="status-select" data-f="status" aria-label="Status">
+        <option value="online" ${s.status === 'online' ? 'selected' : ''}>● Online</option>
+        <option value="maintenance" ${s.status === 'maintenance' ? 'selected' : ''}>● Maintenance</option>
+        <option value="offline" ${s.status === 'offline' ? 'selected' : ''}>● Offline</option>
+      </select>
+      <div class="row-tools">
+        <button class="tool-btn" data-act="up" title="Move up" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="tool-btn" data-act="down" title="Move down" ${i === state.services.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="tool-btn danger" data-act="del" title="Delete">🗑</button>
+      </div>
+    </div>`).join('') || '<div class="empty-note">No services yet.</div>';
+}
+$('#admin-services').addEventListener('input', e => {
+  const row = e.target.closest('.row-item'); if (!row) return;
+  const s = state.services.find(x => x.id === row.dataset.id); if (!s) return;
+  s[e.target.dataset.f] = e.target.value;
+  if (e.target.dataset.f === 'url') e.target.classList.toggle('invalid', !!e.target.value && !safeUrl(e.target.value));
+  save(); renderServices();
+});
+$('#admin-services').addEventListener('click', e => {
+  const btn = e.target.closest('.tool-btn'); if (!btn) return;
+  const id = btn.closest('.row-item').dataset.id;
+  const i = state.services.findIndex(x => x.id === id);
+  if (i < 0) return;
+  if (btn.dataset.act === 'up' && i > 0) [state.services[i - 1], state.services[i]] = [state.services[i], state.services[i - 1]];
+  if (btn.dataset.act === 'down' && i < state.services.length - 1) [state.services[i + 1], state.services[i]] = [state.services[i], state.services[i + 1]];
+  if (btn.dataset.act === 'del') {
+    if (!confirm(`Delete “${state.services[i].name}”?`)) return;
+    state.services.splice(i, 1);
+  }
+  save(); renderAdminServices(); renderServices();
+});
+$('#add-service-btn').addEventListener('click', () => {
+  state.services.push({ id: uid(), icon: '🔧', name: 'New service', desc: 'What is this for?', url: 'https://', status: 'online' });
+  save(); renderAdminServices(); renderServices();
+});
+
+/* ---------------- Admin: wallpaper ---------------- */
+$('#adm-wp-enabled').addEventListener('change', e => {
+  state.wallpaper.enabled = e.target.checked; save(); restartBgTimer(); refreshWallpaper();
+});
+$('#adm-wp-interval').addEventListener('change', e => {
+  state.wallpaper.interval = Number(e.target.value); save(); restartBgTimer();
+  toast(state.wallpaper.interval ? 'Auto-refresh updated.' : 'Auto-refresh off.');
+});
+$('#adm-wp-source').addEventListener('change', e => {
+  state.wallpaper.mode = e.target.value; save(); syncAdminInputs(); refreshWallpaper();
+});
+$('#adm-wp-custom').addEventListener('input', e => {
+  state.wallpaper.customUrls = e.target.value.split('\n').map(s => s.trim()).filter(Boolean);
+  save();
+});
+$('#adm-wp-blur').addEventListener('input', e => {
+  state.wallpaper.blur = Number(e.target.value);
+  $('#blur-val').textContent = state.wallpaper.blur + 'px';
+  applyBgVars();
+});
+$('#adm-wp-blur').addEventListener('change', save);
+$('#adm-wp-veil').addEventListener('input', e => {
+  state.wallpaper.veil = Number(e.target.value);
+  $('#veil-val').textContent = state.wallpaper.veil + '%';
+  applyBgVars();
+});
+$('#adm-wp-veil').addEventListener('change', save);
+$('#wp-refresh-btn').addEventListener('click', () => refreshWallpaper(true));
+$('#shuffle-btn').addEventListener('click', () => refreshWallpaper(true));
+
+/* ---------------- Admin: notices ---------------- */
+function renderAdminNotices() {
+  $('#admin-notices').innerHTML = [...state.notices]
+    .sort((a, b) => (b.pinned - a.pinned) || (b.ts - a.ts))
+    .map(n => `
+    <div class="row-item notice-row" data-id="${n.id}">
+      <div>
+        <div class="nr-title">${n.pinned ? '📌 ' : ''}${esc(n.title)}</div>
+        <div class="nr-meta">${CAT_LABEL[n.category] || n.category} · ${n.priority === 'high' ? 'High priority' : 'Normal'} · ${ago(n.ts)}</div>
+      </div>
+      <button class="tool-btn" data-act="pin" title="${n.pinned ? 'Unpin' : 'Pin to top'}">${n.pinned ? '📌' : '📍'}</button>
+      <button class="tool-btn danger" data-act="del" title="Delete">🗑</button>
+    </div>`).join('') || '<div class="empty-note">No notices yet.</div>';
+}
+$('#admin-notices').addEventListener('click', e => {
+  const btn = e.target.closest('.tool-btn'); if (!btn) return;
+  const id = btn.closest('.row-item').dataset.id;
+  const n = state.notices.find(x => x.id === id); if (!n) return;
+  if (btn.dataset.act === 'pin') n.pinned = !n.pinned;
+  if (btn.dataset.act === 'del') { if (!confirm(`Delete “${n.title}”?`)) return; state.notices = state.notices.filter(x => x.id !== id); }
+  save(); renderAdminNotices(); renderNotices();
+});
+
+/* ---------------- Admin: bookmarks ---------------- */
+function renderAdminBookmarks() {
+  $('#admin-bookmarks').innerHTML = state.bookmarks.map(b => `
+    <div class="row-item bookmark-row" data-id="${b.id}">
+      <input data-f="label" value="${esc(b.label)}" maxlength="40" aria-label="Label">
+      <input data-f="url" value="${esc(b.url)}" placeholder="https://…" aria-label="URL">
+      <button class="tool-btn danger" data-act="del" title="Delete">🗑</button>
+    </div>`).join('') || '<div class="empty-note">No bookmarks yet.</div>';
+}
+$('#admin-bookmarks').addEventListener('input', e => {
+  const row = e.target.closest('.row-item'); if (!row) return;
+  const b = state.bookmarks.find(x => x.id === row.dataset.id); if (!b) return;
+  b[e.target.dataset.f] = e.target.value;
+  if (e.target.dataset.f === 'url') e.target.classList.toggle('invalid', !!e.target.value && !safeUrl(e.target.value));
+  save(); renderBookmarks();
+});
+$('#admin-bookmarks').addEventListener('click', e => {
+  const btn = e.target.closest('.tool-btn'); if (!btn) return;
+  state.bookmarks = state.bookmarks.filter(x => x.id !== btn.closest('.row-item').dataset.id);
+  save(); renderAdminBookmarks(); renderBookmarks();
+});
+$('#add-bookmark-btn').addEventListener('click', () => {
+  state.bookmarks.push({ id: uid(), label: 'New bookmark', url: 'https://' });
+  save(); renderAdminBookmarks(); renderBookmarks();
+});
+
+/* ---------------- Backup / restore ---------------- */
+$('#export-btn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'intranet-portal-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+  toast('Config exported.');
+});
+$('#import-btn').addEventListener('click', () => $('#import-file').click());
+$('#import-file').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (typeof data !== 'object' || data === null || (!Array.isArray(data.services) && typeof data.office !== 'string')) {
+        throw new Error('unrecognized');
+      }
+      const d = DEFAULTS();
+      state = {
+        ...d, ...data,
+        helpdesk: { ...d.helpdesk, ...(data.helpdesk || {}) },
+        wallpaper: { ...d.wallpaper, ...(data.wallpaper || {}) },
+        services: Array.isArray(data.services) ? data.services : d.services,
+        notices: Array.isArray(data.notices) ? data.notices : d.notices,
+        bookmarks: Array.isArray(data.bookmarks) ? data.bookmarks : d.bookmarks,
+      };
+      save(); applyAll();
+      toast('Config imported — welcome back.');
+    } catch { toast('That file could not be read as a portal config.'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+$('#reset-btn').addEventListener('click', () => {
+  if (!confirm('Reset everything to defaults? Export first if unsure.')) return;
+  state = DEFAULTS(); save(); applyAll();
+  toast('Portal reset to defaults.');
+});
+
+/* ---------------- Routing ---------------- */
+function route() {
+  const admin = location.hash === '#admin';
+  $('#view-portal').hidden = admin;
+  $('#view-admin').hidden = !admin;
+  $$('.switch-btn').forEach(b => b.classList.toggle('active', (b.dataset.view === 'admin') === admin));
+  if (!admin) renderNotices();
+  window.scrollTo({ top: 0 });
+}
+$$('.switch-btn').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.view === 'admin' ? '#admin' : '#portal'; }));
+addEventListener('hashchange', route);
+
+/* ---------------- Boot ---------------- */
+function applyAll() {
+  applyTheme(); renderIdentity(); renderServices(); renderNotices(); renderBookmarks();
+  renderAdminServices(); renderAdminNotices(); renderAdminBookmarks(); syncAdminInputs();
+  applyBgVars(); restartBgTimer(); refreshWallpaper();
+}
+save(); // persist defaults immediately so localStorage exists from first load
+applyAll();
+route();
+})();
+</script>
+</body>
+</html>
