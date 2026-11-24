@@ -1,58 +1,51 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Staff Hub — Laravel 13 + Tailwind CSS v4
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern, responsive intranet portal for office teams featuring a "Warm Linen" daylight aesthetic and "Cozy Espresso" dark mode, ambient drifting wallpaper engine, service launcher, interactive announcements notice board, quick bookmarks, and an authenticated administration panel.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Quick Start (Run Locally)
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+# 1. Start the web server
+php artisan serve --port=8624
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Then visit:
+* **Staff Portal**: [http://localhost:8624](http://localhost:8624)
+* **Admin Panel**: [http://localhost:8624/admin](http://localhost:8624/admin)
 
-## Contributing
+> [!TIP]
+> For complete instructions, including first-time installation, Hot Module Replacement (HMR) with Vite, test execution, and default credentials, see **[Local Development Guide](../docs/RUN_LOCALLY.md)**.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Default Admin Credentials
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+* **Email**: `admin@nordvik.local`
+* **Password**: `password`
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Tech Stack
 
-## License
+* **Runtime**: PHP 8.3+ (PHP 8.6 supported)
+* **Framework**: Laravel 13
+* **Database**: SQLite (`database/database.sqlite`)
+* **Styling**: Tailwind CSS v4 + Custom "Warm Linen" CSS tokens
+* **Frontend Build**: Vite 8 (`@tailwindcss/vite` + `laravel-vite-plugin`)
+* **Interactive Engine**: Custom client JS (`resources/js/app.js`)
+* **Testing**: PHPUnit / Pest PHP Feature tests
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Key Features
+
+1. **Service Launcher**: Fast-access grid for internal web tools with live status indicators (`online`, `maintenance`, `offline`).
+2. **Ambient Wallpaper**: Dual-layer crossfade background with subtle drift animations, live blur/veil sliders, and bokeh gradient fallback.
+3. **Office Notice Board**: Categorized announcements (`IT Notice`, `General`, `Reminder`) with priority badges, pin-to-top flags, and public modal posting.
+4. **Live Clock**: Tabular real-time British English clock and dynamic time-of-day greeting.
+5. **Theme Engine**: Instant toggle between Warm Linen daylight mode and Cozy Espresso night mode.
+6. **Quick Bookmarks**: Chip-styled direct links for daily bookmarks.
+7. **Instant Search**: Real-time client-side filter with `/` keyboard shortcut.
+8. **Admin Control Panel**: Auth-protected management of services, notices, bookmarks, portal identity, wallpaper config, and full JSON export/import/reset capabilities.
