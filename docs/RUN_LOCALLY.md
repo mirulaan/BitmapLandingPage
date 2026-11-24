@@ -1,6 +1,6 @@
 # Staff Hub — Local Development Guide
 
-This guide explains how to set up, run, and manage **Staff Hub** on your local machine.
+This guide explains how to set up, run, and manage **Staff Hub** on your local machine directly from the repository root.
 
 ---
 
@@ -18,23 +18,20 @@ Ensure you have the following installed on your machine:
 If you are cloning this repository fresh or setting it up on a new machine:
 
 ```bash
-# 1. Enter the Laravel application folder
-cd staffhub
-
-# 2. Install PHP backend dependencies
+# 1. Install PHP backend dependencies
 composer install
 
-# 3. Install frontend JavaScript & Tailwind CSS v4 dependencies
+# 2. Install frontend JavaScript & Tailwind CSS v4 dependencies
 npm install
 
-# 4. Copy environment file & generate encryption key
+# 3. Copy environment file & generate encryption key
 cp .env.example .env
 php artisan key:generate
 
-# 5. Run database migrations and seed default data
+# 4. Run database migrations and seed default data
 php artisan migrate:fresh --seed
 
-# 6. Build production frontend assets
+# 5. Build production frontend assets
 npm run build
 ```
 
@@ -46,7 +43,6 @@ npm run build
 If you already ran `npm run build`, you only need to run the Laravel server:
 
 ```bash
-cd staffhub
 php artisan serve --port=8624
 ```
 
@@ -64,20 +60,17 @@ When you are editing Blade views, CSS, or JavaScript assets and want instant Hot
 Laravel 13 comes with a concurrent runner that starts both the backend PHP server and the Vite dev server together:
 
 ```bash
-cd staffhub
 composer run dev
 ```
 
 #### Option B — Separate Terminals
 * **Terminal 1** (Laravel Web Server):
   ```bash
-  cd staffhub
   php artisan serve --port=8624
   ```
 
 * **Terminal 2** (Vite Hot Reload):
   ```bash
-  cd staffhub
   npm run dev
   ```
 
@@ -111,7 +104,6 @@ The admin panel is protected by Laravel session authentication.
 To verify that all features, authentication rules, and API endpoints are working properly:
 
 ```bash
-cd staffhub
 php artisan test
 ```
 

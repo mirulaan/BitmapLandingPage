@@ -1,6 +1,6 @@
 # Staff Hub (Bitmap Landing Page)
 
-> A modern, cozy office intranet portal and service launcher designed for workplace teams. Available both as an air-gapped single-file web app and as a full-stack Laravel 13 + Tailwind CSS v4 web platform.
+> A modern, cozy office intranet portal and service launcher designed for workplace teams. Built with **Laravel 13 + Tailwind CSS v4** and SQLite, while preserving the exact "Warm Linen" daylight and "Cozy Espresso" night aesthetic.
 
 ---
 
@@ -8,9 +8,9 @@
 
 **Staff Hub** provides a centralized, calm starting point for an office workday. Employees can launch internal tools, read categorized announcements, reach the IT helpdesk, and access daily bookmarks—accompanied by an ambient drifting wallpaper engine and seamless theme switching.
 
-The repository offers two deployment paradigms:
-1. **Single-File Standalone Edition (`index.html`)**: 100% self-contained HTML/CSS/JS with zero build steps or server dependencies. Runs directly in any browser with client-side `localStorage`.
-2. **Full-Stack Web Application (`staffhub/`)**: Full-featured **Laravel 13 + Tailwind CSS v4** system backed by SQLite, Eloquent models, session-based authentication for the admin control panel, and public JSON API endpoints.
+The repository includes:
+1. **Full-Stack Web Application (Root)**: Full-featured **Laravel 13 + Tailwind CSS v4** system backed by SQLite, Eloquent models, session-based authentication for the admin control panel, and public JSON API endpoints.
+2. **Single-File Standalone Edition (`index.html`)**: 100% self-contained HTML/CSS/JS prototype with zero build steps or server dependencies. Runs directly in any browser with client-side `localStorage`.
 
 ---
 
@@ -40,7 +40,7 @@ Designed around an editorial aesthetic combining serif headlines (*Fraunces*) wi
 * **Quick Bookmarks**: Fast chip links for guest Wi-Fi passes, desk booking, printer queues, leave requests, and expenses.
 * **IT Helpdesk**: Instant one-click clipboard copy for IT support email and phone extension.
 
-### ⚙️ Admin Control Panel (Auth-Protected in Laravel)
+### ⚙️ Admin Control Panel (Auth-Protected)
 * **Portal Identity**: Update office name, tagline, and IT helpdesk contact info.
 * **Service Management**: Full CRUD for launcher cards (icon, title, URL, description, status) with reordering (↑ / ↓).
 * **Ambient Wallpaper Settings**: Toggle wallpaper, choose image source (Lorem Picsum or custom URLs), and adjust blur & frosted veil opacity.
@@ -52,13 +52,13 @@ Designed around an editorial aesthetic combining serif headlines (*Fraunces*) wi
 
 ## 🏗️ Tech Stack Comparison
 
-| Component | Standalone (`index.html`) | Full-Stack (`staffhub/`) |
+| Component | Standalone (`index.html`) | Full-Stack Platform (Root) |
 |---|---|---|
 | **Runtime** | Web Browser | PHP 8.3+ (PHP 8.6 ready) |
 | **Backend Framework** | None | Laravel 13.x |
 | **Styling** | Embedded CSS Custom Properties | Tailwind CSS v4 + Custom Theme Tokens |
 | **Build System** | None | Vite 8 + `@tailwindcss/vite` |
-| **Database** | Browser `localStorage` | SQLite (`database.sqlite`) |
+| **Database** | Browser `localStorage` | SQLite (`database/database.sqlite`) |
 | **Authentication** | Open / Client Hash Routing | Laravel Session Auth + Sanctum API |
 | **API Endpoints** | None | RESTful JSON API (`/api/services`, `/api/notices`, etc.) |
 | **Testing** | Manual Verification | Automated Feature Tests (15 tests, 59 assertions) |
@@ -69,39 +69,36 @@ Designed around an editorial aesthetic combining serif headlines (*Fraunces*) wi
 
 ```
 BitmapLandingPage/
-├── index.html                   # Original standalone single-file portal (60 KB)
-├── project-analysis.md          # Architectural analysis of the original prototype
-├── staffhub-migration-plan.md   # Step-by-step full-stack migration specifications
+├── app/                         # Laravel Controllers, Models & Providers
+│   ├── Http/Controllers/        # PortalController, AdminController, AuthController
+│   └── Models/                  # PortalSetting, Service, Notice, Bookmark, User
+├── database/
+│   ├── migrations/              # Schema migrations for all entities
+│   ├── seeders/                 # StaffHubSeeder with default office data
+│   └── database.sqlite          # SQLite database
+├── resources/
+│   ├── css/app.css              # Tailwind CSS v4 + Warm Linen design system
+│   ├── js/app.js                # Wallpaper engine, clock, search & AJAX modal
+│   └── views/                   # Blade templates (layouts, portal, admin, login)
+├── routes/                      # web.php and api.php
+├── tests/Feature/               # Automated test suite (15 passed tests)
+├── public/                      # Compiled Vite assets and entrypoint (index.php)
 ├── docs/
 │   └── RUN_LOCALLY.md           # Comprehensive local development and testing guide
-└── staffhub/                    # Full-Stack Laravel 13 web application
-    ├── app/
-    │   ├── Http/Controllers/    # PortalController, AdminController, AuthController
-    │   └── Models/              # PortalSetting, Service, Notice, Bookmark, User
-    ├── database/
-    │   ├── migrations/          # Schema migrations for all entities
-    │   └── seeders/             # StaffHubSeeder with default office data
-    ├── resources/
-    │   ├── css/app.css          # Tailwind CSS v4 + Warm Linen design system
-    │   ├── js/app.js            # Wallpaper engine, clock, search & AJAX modal
-    │   └── views/               # Blade templates (layouts, portal, admin, login)
-    ├── routes/                  # web.php and api.php
-    └── tests/Feature/           # Automated test suite
+├── index.html                   # Original standalone single-file prototype (60 KB)
+├── project-analysis.md          # Architectural analysis of the original prototype
+├── staffhub-migration-plan.md   # Full-stack migration specifications
+├── composer.json                # PHP dependencies
+├── package.json                 # Node dependencies
+└── vite.config.js               # Vite build configuration
 ```
 
 ---
 
 ## ⚡ Quick Start (Run Locally)
 
-### Option 1: Standalone Single-File
-Simply open `index.html` in any web browser. No server required!
-
-### Option 2: Full-Stack Laravel Application
 ```bash
-# 1. Enter application directory
-cd staffhub
-
-# 2. Start server
+# 1. Start server directly from root
 php artisan serve --port=8624
 ```
 
@@ -110,4 +107,9 @@ php artisan serve --port=8624
   * **Email**: `admin@nordvik.local`
   * **Password**: `password`
 
-For detailed setup instructions, asset compilation with Vite, hot reload, and test running, refer to **[docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)**.
+### Active Frontend Development (Hot Reload)
+```bash
+composer run dev
+```
+
+For full setup instructions, asset compilation with Vite, and running tests, refer to **[docs/RUN_LOCALLY.md](docs/RUN_LOCALLY.md)**.
