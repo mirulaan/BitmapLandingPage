@@ -40,6 +40,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::put('/bookmarks/{bookmark}', [AdminController::class, 'updateBookmark'])->name('bookmarks.update');
     Route::delete('/bookmarks/{bookmark}', [AdminController::class, 'destroyBookmark'])->name('bookmarks.destroy');
 
+    // Portal Users (admin only)
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+
     // Backup & Restore
     Route::get('/export', [AdminController::class, 'exportConfig'])->name('export');
     Route::post('/import', [AdminController::class, 'importConfig'])->name('import');

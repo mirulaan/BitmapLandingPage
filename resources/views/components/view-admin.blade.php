@@ -213,6 +213,63 @@
       </div>
     </section>
 
+    @if(auth()->user()?->is_admin)
+    <!-- Portal Users -->
+    <section class="card-panel admin-section">
+      <h3><span aria-hidden="true">👥</span> Portal Users</h3>
+      <p class="sec-desc">Create accounts for team members who can sign in and manage this portal.</p>
+
+      <div class="row-list" id="admin-users" style="margin-bottom:16px">
+        @forelse($users ?? [] as $u)
+          <div class="row-item" style="justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <div class="nr-title">{{ $u->name }} <span style="font-size:0.78rem;color:var(--muted);font-weight:500;">({{ $u->username ?? $u->email }})</span></div>
+              <div class="nr-meta">{{ $u->email }} · {{ $u->is_admin ? 'Admin' : 'Portal Manager' }}</div>
+            </div>
+            @if(auth()->id() !== $u->id)
+              <form method="POST" action="{{ route('admin.users.destroy', $u) }}" onsubmit="return confirm('Remove user {{ $u->username ?? $u->email }}?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="tool-btn danger" title="Delete user">🗑</button>
+              </form>
+            @endif
+          </div>
+        @empty
+          <div class="empty-note">No users found.</div>
+        @endforelse
+      </div>
+
+      <form method="POST" action="{{ route('admin.users.store') }}">
+        @csrf
+        <div class="field-grid">
+          <div class="field">
+            <label for="usr-name">Full name</label>
+            <input id="usr-name" name="name" type="text" maxlength="80" value="{{ old('name') }}" placeholder="e.g. Jane Doe" required>
+          </div>
+          <div class="field">
+            <label for="usr-username">Username</label>
+            <input id="usr-username" name="username" type="text" maxlength="40" value="{{ old('username') }}" placeholder="e.g. jane" required>
+          </div>
+          <div class="field">
+            <label for="usr-email">Email</label>
+            <input id="usr-email" name="email" type="email" maxlength="120" value="{{ old('email') }}" placeholder="jane@nordvik.local" required>
+          </div>
+          <div class="field">
+            <label for="usr-password">Password</label>
+            <input id="usr-password" name="password" type="password" minlength="6" placeholder="Min. 6 characters" required>
+          </div>
+        </div>
+        <div class="check-row" style="margin-top:12px;">
+          <input type="checkbox" name="is_admin" id="usr-is-admin" value="1" {{ old('is_admin') ? 'checked' : '' }}>
+          <label for="usr-is-admin" style="font-size:0.82rem; font-weight:500; cursor:pointer;">Grant admin privileges (can create &amp; remove users)</label>
+        </div>
+        <div style="margin-top:14px;display:flex;justify-content:flex-end">
+          <button type="submit" class="btn btn-sm">＋ Create User</button>
+        </div>
+      </form>
+    </section>
+    @endif
+
     <!-- Backup & Restore -->
     <section class="card-panel admin-section">
       <h3><span aria-hidden="true">🧷</span> Backup &amp; Restore</h3>

@@ -6,19 +6,24 @@ use App\Models\Bookmark;
 use App\Models\Notice;
 use App\Models\PortalSetting;
 use App\Models\Service;
+use App\Models\User;
 use Database\Seeders\StaffHubSeeder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return view('admin', [
             'settings' => PortalSetting::current(),
             'services' => Service::ordered()->get(),
             'notices' => Notice::sorted()->get(),
             'bookmarks' => Bookmark::ordered()->get(),
+            'users' => $request->user()?->is_admin ? User::orderBy('id')->get() : collect(),
         ]);
     }
 
@@ -402,5 +407,59 @@ class AdminController extends Controller
         }
 
         return back()->with('status', 'Portal reset to default settings.');
+    }
+
+    /**
+     * Create a new portal user (admin only).
+     */
+    public function storeUser(Request $request): JsonResponse|RedirectResponse
+    {
+        abort_unless($request->user()?->is_admin, 403);
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:80'],
+            'username' => ['required', 'string', 'max:40', 'alpha_dash', Rule::unique('users', 'username')],
+            'email' => ['required', 'email', 'max:120', Rule::unique('users', 'email')],
+            'password' => ['required', 'string', 'min:6'],
+            'is_admin' => ['sometimes', 'boolean'],
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'is_admin' => $request->boolean('is_admin'),
+        ]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'user' => $user], 201);
+        }
+
+        return back()->with('status', 'User created successfully.');
+    }
+
+    /**
+     * Delete a portal user (admin only).
+     */
+    public function destroyUser(Request $request, User $user): JsonResponse|RedirectResponse
+    {
+        abort_unless($request->user()?->is_admin, 403);
+
+        if ($request->user()?->is($user)) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'You cannot delete your own account.'], 422);
+            }
+
+            return back()->withErrors(['user' => 'You cannot delete your own account.']);
+        }
+
+        $user->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('status', 'User removed.');
     }
 }

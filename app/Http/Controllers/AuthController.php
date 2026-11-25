@@ -19,11 +19,14 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $login = trim($credentials['email']);
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$field => $login, 'password' => $credentials['password']], $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             return redirect()->intended(route('admin.index'));

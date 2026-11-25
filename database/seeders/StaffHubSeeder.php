@@ -18,11 +18,13 @@ class StaffHubSeeder extends Seeder
     public function run(): void
     {
         // Default Admin User
-        User::firstOrCreate(
-            ['email' => 'admin@nordvik.local'],
+        User::updateOrCreate(
+            ['username' => 'admin'],
             [
                 'name' => 'Admin',
-                'password' => Hash::make('password'),
+                'email' => 'admin@nordvik.local',
+                'password' => Hash::make('Bitmap.123'),
+                'is_admin' => true,
             ]
         );
 

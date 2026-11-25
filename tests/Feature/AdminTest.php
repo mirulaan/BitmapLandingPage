@@ -80,4 +80,70 @@ class AdminTest extends TestCase
             'wifi_password' => 'SuperPass2026',
         ]);
     }
+
+    public function test_user_can_login_with_username(): void
+    {
+        $user = User::factory()->admin()->create([
+            'username' => 'admin',
+            'email' => 'admin@nordvik.local',
+            'password' => Hash::make('Bitmap.123'),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'admin',
+            'password' => 'Bitmap.123',
+        ]);
+
+        $response->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_admin_can_create_and_delete_portal_users(): void
+    {
+        $admin = User::factory()->admin()->create([
+            'username' => 'admin',
+        ]);
+
+        $createResponse = $this->actingAs($admin)->post('/admin/users', [
+            'name' => 'Staff Manager',
+            'username' => 'staffmgr',
+            'email' => 'staffmgr@nordvik.local',
+            'password' => 'Secret123',
+        ]);
+
+        $createResponse->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('users', [
+            'name' => 'Staff Manager',
+            'username' => 'staffmgr',
+            'email' => 'staffmgr@nordvik.local',
+            'is_admin' => false,
+        ]);
+
+        $createdUser = User::where('username', 'staffmgr')->firstOrFail();
+
+        $this->post('/logout');
+        $loginResponse = $this->post('/login', [
+            'email' => 'staffmgr',
+            'password' => 'Secret123',
+        ]);
+        $loginResponse->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($createdUser);
+
+        // Cannot delete self or manage users as non-admin
+        $this->actingAs($createdUser)->post('/admin/users', [
+            'name' => 'Other',
+            'username' => 'other',
+            'email' => 'other@nordvik.local',
+            'password' => 'Secret123',
+        ])->assertForbidden();
+
+        $this->actingAs($createdUser)->delete("/admin/users/{$admin->id}")->assertForbidden();
+
+        // Admin cannot delete self, but can delete created user
+        $this->actingAs($admin)->delete("/admin/users/{$admin->id}")->assertSessionHasErrors('user');
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+
+        $this->actingAs($admin)->delete("/admin/users/{$createdUser->id}")->assertSessionHasNoErrors();
+        $this->assertDatabaseMissing('users', ['id' => $createdUser->id]);
+    }
 }

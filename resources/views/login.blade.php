@@ -23,8 +23,8 @@
       @csrf
 
       <div class="field">
-        <label for="email">Email Address</label>
-        <input id="email" name="email" type="email" value="{{ old('email', 'admin@nordvik.local') }}" required autofocus autocomplete="username">
+        <label for="email">Username or Email</label>
+        <input id="email" name="email" type="text" value="{{ old('email', 'admin') }}" required autofocus autocomplete="username" placeholder="admin or admin@nordvik.local">
       </div>
 
       <div class="field">
