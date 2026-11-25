@@ -15,7 +15,7 @@ services:
       APP_DEBUG: "${APP_DEBUG:-false}"
       APP_URL: "${APP_URL:-http://localhost:8624}"
       DB_CONNECTION: "${DB_CONNECTION:-pgsql}"
-      DB_HOST: "${DB_HOST:-192.168.100.4}"
+      DB_HOST: "${DB_HOST:-postgres}"
       DB_PORT: "${DB_PORT:-5432}"
       DB_DATABASE: "${DB_DATABASE:-db_LandingPage}"
       DB_USERNAME: "${DB_USERNAME:-postgres}"
@@ -28,9 +28,12 @@ services:
       REDIS_PORT: 6379
       RUN_MIGRATIONS: "${RUN_MIGRATIONS:-true}"
       SEED_DATABASE: "${SEED_DATABASE:-false}"
+      SEED_IF_EMPTY: "${SEED_IF_EMPTY:-true}"
     volumes:
       - app_storage:/var/www/html/storage
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     networks:
@@ -53,7 +56,7 @@ services:
       APP_KEY: "${APP_KEY:-}"
       APP_DEBUG: "${APP_DEBUG:-false}"
       DB_CONNECTION: "${DB_CONNECTION:-pgsql}"
-      DB_HOST: "${DB_HOST:-192.168.100.4}"
+      DB_HOST: "${DB_HOST:-postgres}"
       DB_PORT: "${DB_PORT:-5432}"
       DB_DATABASE: "${DB_DATABASE:-db_LandingPage}"
       DB_USERNAME: "${DB_USERNAME:-postgres}"
@@ -67,6 +70,8 @@ services:
     depends_on:
       app:
         condition: service_started
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
@@ -85,7 +90,7 @@ services:
       APP_KEY: "${APP_KEY:-}"
       APP_DEBUG: "${APP_DEBUG:-false}"
       DB_CONNECTION: "${DB_CONNECTION:-pgsql}"
-      DB_HOST: "${DB_HOST:-192.168.100.4}"
+      DB_HOST: "${DB_HOST:-postgres}"
       DB_PORT: "${DB_PORT:-5432}"
       DB_DATABASE: "${DB_DATABASE:-db_LandingPage}"
       DB_USERNAME: "${DB_USERNAME:-postgres}"
@@ -98,17 +103,36 @@ services:
     depends_on:
       app:
         condition: service_started
+      postgres:
+        condition: service_healthy
     healthcheck:
       disable: true
     networks:
       - bitmap_network
 
+  postgres:
+    image: postgres:16-alpine
+    container_name: bitmap_landing_page_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${DB_DATABASE:-db_LandingPage}"
+      POSTGRES_USER: "${DB_USERNAME:-postgres}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-Abitabit9898}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bitmap_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-db_LandingPage}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   redis:
     image: redis:7-alpine
     container_name: bitmap_landing_page_redis
     restart: unless-stopped
-    ports:
-      - "${FORWARD_REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -121,6 +145,8 @@ services:
       start_period: 5s
 
 volumes:
+  postgres_data:
+    driver: local
   redis_data:
     driver: local
   app_storage:

@@ -33,10 +33,18 @@ if [ -n "$PORT" ] && [ "$PORT" != "80" ]; then
     sed -i "s/listen \[::\]:80 default_server;/listen [::]:${PORT} default_server;/g" /etc/nginx/http.d/default.conf
 fi
 
-# Auto-generate APP_KEY if missing
+# Auto-generate and persist APP_KEY in shared storage volume if missing
 if [ -z "$APP_KEY" ]; then
-    echo "Notice: APP_KEY not set. Auto-generating application key..."
-    APP_KEY="$(php artisan key:generate --show --no-interaction)"
+    KEY_FILE="/var/www/html/storage/app/.app_key"
+    if [ -f "$KEY_FILE" ]; then
+        APP_KEY="$(cat "$KEY_FILE")"
+    else
+        echo "Notice: APP_KEY not set. Auto-generating persistent application key..."
+        APP_KEY="$(php artisan key:generate --show --no-interaction)"
+        mkdir -p /var/www/html/storage/app
+        echo "$APP_KEY" > "$KEY_FILE"
+        chown www-data:www-data "$KEY_FILE"
+    fi
     export APP_KEY
 fi
 
@@ -46,10 +54,16 @@ if [ "${RUN_MIGRATIONS:-false}" = "true" ] || [ "${AUTO_MIGRATE:-false}" = "true
     php artisan migrate --force --no-interaction
 fi
 
-# Seed database if requested
+# Seed database if requested or on first boot when users table is empty
 if [ "${SEED_DATABASE:-false}" = "true" ]; then
     echo "Seeding database..."
     php artisan db:seed --force --no-interaction
+elif [ "${SEED_IF_EMPTY:-false}" = "true" ]; then
+    USER_COUNT=$(php -r "require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); echo App\Models\User::count();" 2>/dev/null || echo "0")
+    if [ "$USER_COUNT" = "0" ]; then
+        echo "Empty database detected. Seeding initial admin user & portal data..."
+        php artisan db:seed --force --no-interaction
+    fi
 fi
 
 # Optimize Laravel cache in production unless explicitly skipped
