@@ -73,6 +73,28 @@ class QrCodeServiceTest extends TestCase
         $this->assertStringContainsString('fill="#000000"', $svg);
     }
 
+    public function test_wifi_qr_svg_is_cached_and_only_regenerated_when_wifi_credentials_change(): void
+    {
+        $setting = PortalSetting::current();
+        $initialSvg = $setting->wifi_qr_svg;
+
+        $this->assertNotEmpty($setting->getRawOriginal('wifi_qr_svg'));
+
+        // Updating unrelated setting preserves stored SVG verbatim
+        $setting->update(['office_name' => 'Nordvik Updated Office']);
+        $this->assertSame($initialSvg, $setting->fresh()->getRawOriginal('wifi_qr_svg'));
+
+        // Updating SSID regenerates the stored QR SVG
+        $setting->update(['wifi_ssid' => 'Nordvik-New-SSID-2026']);
+        $afterSsidChange = $setting->fresh()->getRawOriginal('wifi_qr_svg');
+        $this->assertNotSame($initialSvg, $afterSsidChange);
+
+        // Updating Password regenerates the stored QR SVG again
+        $setting->update(['wifi_password' => 'NewSecretPass999']);
+        $afterPassChange = $setting->fresh()->getRawOriginal('wifi_qr_svg');
+        $this->assertNotSame($afterSsidChange, $afterPassChange);
+    }
+
     public function test_handles_various_wifi_payload_lengths_adaptively(): void
     {
         $testCases = [

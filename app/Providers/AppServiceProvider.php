@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('*', function ($view) {
+        View::composer(['layouts.*', 'portal', 'admin', 'login', 'wifi', 'components.*'], function ($view) {
             try {
                 if (Schema::hasTable('portal_settings')) {
                     if (! $view->offsetExists('settings')) {

@@ -61,6 +61,12 @@
 </head>
 <body>
 
+<div id="nav-loading-bar" class="nav-loading-bar" aria-hidden="true"></div>
+<div id="nav-loading-pill" class="nav-loading-pill" role="status" aria-live="polite" hidden>
+  <span class="nav-spinner" aria-hidden="true"></span>
+  <span id="nav-loading-text">Loading…</span>
+</div>
+
 <!-- Dreamy blurred wallpaper -->
 <div id="bg-wrap" aria-hidden="true">
   <div id="bg-layer-a" class="bg-layer"></div>

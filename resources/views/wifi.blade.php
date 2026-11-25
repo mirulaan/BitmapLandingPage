@@ -44,7 +44,7 @@
     </div>
 
     <div class="wifi-actions">
-      <a href="{{ route('portal') }}" class="btn btn-ghost btn-sm">← Back to Staff Portal</a>
+      <a href="{{ route('portal') }}" class="btn btn-ghost btn-sm" data-nav-loading="Returning to Staff Portal…">← Back to Staff Portal</a>
       <button type="button" class="btn btn-sm" onclick="window.print()">🖨️ Print Guest Pass</button>
     </div>
   </div>

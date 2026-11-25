@@ -837,12 +837,19 @@
   }
 
   /* ---------------- Service Ping Engine ---------------- */
+  let pingAbortController = null;
+
   async function pingServices() {
+    if (pingAbortController) {
+      pingAbortController.abort();
+    }
+    pingAbortController = new AbortController();
     const note = $('#ping-status-note');
     if (note) note.textContent = 'Pinging…';
     try {
       const res = await fetch('/services/ping', {
         headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        signal: pingAbortController.signal,
       });
       if (!res.ok) {
         if (note) note.textContent = '';
@@ -858,7 +865,8 @@
         const time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         note.textContent = `Pinged ${time}`;
       }
-    } catch {
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
       if (note) note.textContent = 'Ping failed.';
     }
   }
@@ -999,6 +1007,60 @@
     }
   });
 
+  /* ---------------- Navigation Loading Indicator ---------------- */
+  const navLoadingBar = $('#nav-loading-bar');
+  const navLoadingPill = $('#nav-loading-pill');
+  const navLoadingText = $('#nav-loading-text');
+
+  function startNavLoading(el, labelText) {
+    if (pingAbortController) {
+      pingAbortController.abort();
+    }
+    document.body.classList.add('is-navigating');
+    if (navLoadingBar) navLoadingBar.classList.add('active');
+    if (navLoadingPill) {
+      if (navLoadingText) navLoadingText.textContent = labelText || 'Loading…';
+      navLoadingPill.hidden = false;
+    }
+    if (el) {
+      el.classList.add('is-loading');
+      el.setAttribute('aria-busy', 'true');
+      const labelEl = el.querySelector('.chip-label');
+      if (labelEl) {
+        if (!el.dataset.origLabel) el.dataset.origLabel = labelEl.textContent;
+        labelEl.textContent = `${el.dataset.origLabel} · Loading…`;
+      }
+    }
+  }
+
+  function resetNavLoading() {
+    document.body.classList.remove('is-navigating');
+    if (navLoadingBar) navLoadingBar.classList.remove('active');
+    if (navLoadingPill) navLoadingPill.hidden = true;
+    $$('.is-loading').forEach(el => {
+      el.classList.remove('is-loading');
+      el.removeAttribute('aria-busy');
+      const labelEl = el.querySelector('.chip-label');
+      if (labelEl && el.dataset.origLabel) {
+        labelEl.textContent = el.dataset.origLabel;
+      }
+    });
+  }
+
+  document.addEventListener('click', e => {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    const navLink = e.target.closest('[data-nav-loading], #bookmarks-chips .chip-link[target="_self"]');
+    if (!navLink) return;
+    const href = navLink.getAttribute('href') || '';
+    if (!href || href.startsWith('#')) return;
+    const label = navLink.dataset.navLoading || `Opening ${navLink.textContent.trim()}…`;
+    startNavLoading(navLink, label);
+  });
+
+  window.addEventListener('pageshow', resetNavLoading);
+
   /* ---------------- Boot ---------------- */
   applyTheme();
   applyBgVars();
@@ -1015,6 +1077,8 @@
 
   restartBgTimer();
   refreshWallpaper();
-  pingServices();
+  if ($('#services-grid') || $('#adm-services-list')) {
+    pingServices();
+  }
 
 })();

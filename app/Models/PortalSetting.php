@@ -9,6 +9,8 @@ class PortalSetting extends Model
 {
     protected $guarded = ['id'];
 
+    protected $hidden = ['wifi_qr_svg'];
+
     protected $casts = [
         'wallpaper_enabled' => 'boolean',
         'wallpaper_custom_urls' => 'array',
@@ -16,6 +18,21 @@ class PortalSetting extends Model
         'wallpaper_blur' => 'integer',
         'wallpaper_veil' => 'integer',
     ];
+
+    /**
+     * Regenerate cached Wi-Fi QR SVG only when Wi-Fi credentials change.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (PortalSetting $setting): void {
+            $wifiChanged = ! $setting->exists || $setting->isDirty(['wifi_ssid', 'wifi_password', 'wifi_encryption']);
+            $missingCachedSvg = empty($setting->attributes['wifi_qr_svg'] ?? null);
+
+            if ($wifiChanged || $missingCachedSvg) {
+                $setting->attributes['wifi_qr_svg'] = QrCodeService::generateSvg($setting->wifi_string, 260, '#000000');
+            }
+        });
+    }
 
     /**
      * Singleton accessor — always returns row #1
@@ -57,10 +74,20 @@ class PortalSetting extends Model
     }
 
     /**
-     * Generate crisp SVG QR Code for the Wi-Fi credentials.
+     * Return cached SVG QR Code for the Wi-Fi credentials, generating and storing it only when absent.
      */
-    public function getWifiQrSvgAttribute(): string
+    public function getWifiQrSvgAttribute(?string $value = null): string
     {
-        return QrCodeService::generateSvg($this->wifi_string, 260, '#000000');
+        if (! empty($value)) {
+            return $value;
+        }
+
+        $svg = QrCodeService::generateSvg($this->wifi_string, 260, '#000000');
+
+        if ($this->exists) {
+            $this->updateQuietly(['wifi_qr_svg' => $svg]);
+        }
+
+        return $svg;
     }
 }

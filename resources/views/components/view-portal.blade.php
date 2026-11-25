@@ -88,8 +88,8 @@
             $isInternal = str_starts_with($b->url, '/') || str_starts_with($b->url, '#');
             $safeUrl = $isWifi ? route('wifi') : ($isInternal ? $b->url : ((filter_var($b->url, FILTER_VALIDATE_URL) && in_array(parse_url($b->url, PHP_URL_SCHEME), ['http', 'https'])) ? $b->url : '#'));
           @endphp
-          <a class="chip-link {{ $isWifi ? 'chip-wifi' : '' }}" data-id="{{ $b->id }}" data-label="{{ strtolower($b->label) }}" data-url="{{ strtolower($b->url) }}" href="{{ $safeUrl }}" target="{{ $isInternal || $isWifi ? '_self' : '_blank' }}" rel="noopener">
-            <span class="dot {{ $isWifi ? 'dot-wifi' : '' }}"></span>{{ $b->label }}
+          <a class="chip-link {{ $isWifi ? 'chip-wifi' : '' }}" data-id="{{ $b->id }}" data-label="{{ strtolower($b->label) }}" data-url="{{ strtolower($b->url) }}" href="{{ $safeUrl }}" target="{{ $isInternal || $isWifi ? '_self' : '_blank' }}" rel="noopener" @if($isInternal || $isWifi) data-nav-loading="Opening {{ $b->label }}…" @endif>
+            <span class="dot {{ $isWifi ? 'dot-wifi' : '' }}" aria-hidden="true"></span><span class="chip-label">{{ $b->label }}</span>
           </a>
         @empty
           <div class="empty-note" style="width:100%">No bookmarks yet.</div>

@@ -103,5 +103,15 @@ class PortalTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Guest Wifi Pass');
         $response->assertSee(route('wifi'));
+        $response->assertSee('data-nav-loading="Opening Guest Wifi Pass…"', false);
+        $response->assertSee('id="nav-loading-bar"', false);
+        $response->assertSee('id="nav-loading-pill"', false);
+    }
+
+    public function test_health_check_endpoint_returns_ok(): void
+    {
+        $response = $this->get('/up');
+
+        $response->assertStatus(200);
     }
 }
