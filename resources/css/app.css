@@ -281,7 +281,9 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
 /* The scrollbar is hidden permanently; the list still scrolls by wheel, touch and keyboard. */
 .notices-list {
   display: flex; flex-direction: column; gap: 10px;
-  max-height: 560px; overflow-y: auto; padding-right: 2px;
+  /* Viewport-aware so the whole board fits the screen instead of running off the bottom. */
+  max-height: clamp(280px, calc(100vh - 300px), 620px);
+  overflow-y: auto; padding-right: 2px;
   scrollbar-width: none;
 }
 .notices-list::-webkit-scrollbar { display: none; }
@@ -311,7 +313,7 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
 .empty-note { font-size: .82rem; color: var(--muted); text-align: center; padding: 26px 10px; border: 1px dashed var(--border); border-radius: 6px; }
 
 /* ---------- Bookmarks + office locations ---------- */
-.bottom-strip { display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 22px; margin-top: 22px; }
+.bottom-strip { display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 22px; margin-top: 22px; align-items: start; }
 .bookmarks-panel { display: flex; flex-direction: column; gap: 12px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip-link {
@@ -525,6 +527,16 @@ body.is-navigating { cursor: progress; }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- Responsive ---------- */
+/* Short laptop screens: reclaim vertical space so the notice board fits without scrolling. */
+@media (max-height: 950px) {
+  .shell { padding-top: 14px; }
+  .topbar { padding: 11px 18px; }
+  .brand-mark { width: 40px; height: 40px; }
+  .clock { font-size: 1.42rem; }
+  .search-row { margin: 12px 0 2px; }
+  .main-grid { margin-top: 12px; }
+  .bottom-strip { margin-top: 16px; }
+}
 @media (max-width: 1060px) {
   .main-grid, .bottom-strip { grid-template-columns: 1fr; }
   .notice-panel { position: static; }
