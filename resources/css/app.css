@@ -225,7 +225,7 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
 .search-count:empty { display: none; }
 
 /* ---------- Main grid ---------- */
-.main-grid { display: grid; grid-template-columns: minmax(0, 1fr) clamp(372px, 42vw, 560px); gap: 22px; margin-top: 16px; align-items: start; }
+.main-grid { display: grid; grid-template-columns: minmax(0, 1fr) clamp(372px, 42vw, 560px); gap: 22px; margin-top: 16px; align-items: stretch; }
 /* Left column stacks the launcher, bookmarks and offices so the notice board has a tall column to sit beside. */
 .col-main { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0 2px 12px; }
@@ -269,7 +269,7 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
   background: var(--card); border: 1px solid var(--border); border-radius: 10px;
   box-shadow: var(--shadow); padding: 18px;
 }
-.notice-panel { position: sticky; top: 18px; }
+.notice-panel { position: sticky; top: 18px; display: flex; flex-direction: column; }
 .notice-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .notice-head h2 { font-size: 1.18rem; }
 .cat-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -283,8 +283,9 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
 /* The scrollbar is hidden permanently; the list still scrolls by wheel, touch and keyboard. */
 .notices-list {
   display: flex; flex-direction: column; gap: 10px;
-  /* Viewport-aware so the whole board fits the screen instead of running off the bottom. */
-  max-height: clamp(280px, calc(100vh - 300px), 620px);
+  /* height: 0 keeps the list out of the panel's intrinsic height, so the board
+     stretches to match the left column instead of deciding its own height. */
+  flex: 1 1 0; height: 0; min-height: 0;
   overflow-y: auto; padding-right: 2px;
   scrollbar-width: none;
 }
@@ -546,7 +547,8 @@ body.is-navigating { cursor: progress; }
   .col-main > section { order: 2; }
   .col-main > section:first-child { order: 0; }
   .notice-panel { position: static; order: 1; }
-  .notices-list { max-height: 420px; }
+  /* Single column: a fixed, comfortable window on roughly three notices. */
+  .notices-list { flex: 0 0 auto; height: auto; max-height: 340px; }
 }
 @media (max-width: 720px) {
   .clock-block { margin-left: 0; text-align: left; }

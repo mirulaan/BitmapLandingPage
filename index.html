@@ -211,7 +211,7 @@ body.bg-bokeh #bg-bokeh{opacity:1}
 .search-count:empty{display:none}
 
 /* ---------- Main grid ---------- */
-.main-grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(372px,42vw,560px);gap:22px;margin-top:16px;align-items:start}
+.main-grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(372px,42vw,560px);gap:22px;margin-top:16px;align-items:stretch}
 .col-main{display:flex;flex-direction:column;gap:22px;min-width:0}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 12px}
 .section-head h2{font-size:1.18rem}
@@ -254,7 +254,7 @@ body.bg-bokeh #bg-bokeh{opacity:1}
   background:var(--card);border:1px solid var(--border);border-radius:10px;
   box-shadow:var(--shadow);padding:18px;
 }
-.notice-panel{position:sticky;top:18px}
+.notice-panel{position:sticky;top:18px;display:flex;flex-direction:column}
 .notice-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
 .notice-head h2{font-size:1.18rem}
 .cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
@@ -266,7 +266,7 @@ body.bg-bokeh #bg-bokeh{opacity:1}
 .cat-tab:hover{color:var(--ink);border-color:var(--border-strong)}
 .cat-tab.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 /* The scrollbar is hidden permanently; the list still scrolls by wheel, touch and keyboard. */
-.notices-list{display:flex;flex-direction:column;gap:10px;max-height:clamp(280px,calc(100vh - 300px),620px);overflow-y:auto;padding-right:2px;scrollbar-width:none}
+.notices-list{display:flex;flex-direction:column;gap:10px;flex:1 1 0;height:0;min-height:0;overflow-y:auto;padding-right:2px;scrollbar-width:none}
 .notices-list::-webkit-scrollbar{display:none}
 .notice{
   background:var(--card-soft);border:1px solid var(--border);border-radius:6.5px;
@@ -438,7 +438,7 @@ body.bg-bokeh #bg-bokeh{opacity:1}
   .col-main>section{order:2}
   .col-main>section:first-child{order:0}
   .notice-panel{position:static;order:1}
-  .notices-list{max-height:420px}
+  .notices-list{flex:0 0 auto;height:auto;max-height:340px}
 }
 @media (max-width:720px){
   .clock-block{margin-left:0;text-align:left}
