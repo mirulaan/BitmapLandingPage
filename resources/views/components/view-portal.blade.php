@@ -97,9 +97,10 @@
       </div>
     </section>
 
-    <section class="locations" aria-label="Office locations">
-      <h3>Our Offices</h3>
-      <div class="sub">Tap a location to open it in your maps app.</div>
+    <section class="card-panel locations-panel" aria-label="Office locations">
+      <div class="section-head" style="margin:0 0 2px">
+        <h2>Our Offices</h2>
+      </div>
       <div class="loc-list">
         @foreach($settings->locations() as $loc)
           @if($loc['name'] !== '' || $loc['address'] !== '')

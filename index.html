@@ -303,16 +303,11 @@ body.bg-bokeh #bg-bokeh{opacity:1}
 }
 .chip-link:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
 .chip-link .dot{width:6px;height:6px;background:var(--accent);box-shadow:none;opacity:.6}
-.locations{
-  background:linear-gradient(150deg,var(--accent-soft),var(--sage-soft));
-  border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:var(--shadow);
-}
-.locations h3{font-size:1rem;margin-bottom:2px}
-.locations .sub{font-size:.76rem;color:var(--muted);margin-bottom:12px}
+.locations-panel{display:flex;flex-direction:column;gap:12px}
 .loc-list{display:flex;flex-direction:column;gap:8px}
 .loc-item{
   display:flex;align-items:center;gap:10px;
-  padding:10px 12px;background:var(--card);border:1px solid var(--border);
+  padding:10px 12px;background:var(--card-soft);border:1px solid var(--border);
   border-radius:6px;text-decoration:none;color:var(--ink);
   transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease;
 }
@@ -525,9 +520,10 @@ body.bg-bokeh #bg-bokeh{opacity:1}
         </div>
         <div class="chips" id="bookmarks-chips"></div>
       </section>
-      <section class="locations" aria-label="Office locations">
-        <h3>Our Offices</h3>
-        <div class="sub">Tap a location to open it in your maps app.</div>
+      <section class="card-panel locations-panel" aria-label="Office locations">
+        <div class="section-head" style="margin:0 0 2px">
+          <h2>Our Offices</h2>
+        </div>
         <div class="loc-list" id="loc-list"></div>
       </section>
     </div>
