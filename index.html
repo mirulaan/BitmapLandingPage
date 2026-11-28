@@ -264,12 +264,9 @@ body.bg-bokeh #bg-bokeh{opacity:1}
 }
 .cat-tab:hover{color:var(--ink);border-color:var(--border-strong)}
 .cat-tab.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.notices-list{display:flex;flex-direction:column;gap:10px;max-height:560px;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:transparent transparent}
-.notice-panel:hover .notices-list,.notices-list:focus-within{scrollbar-color:var(--border-strong) transparent}
-.notices-list::-webkit-scrollbar{width:8px}
-.notices-list::-webkit-scrollbar-track{background:transparent}
-.notices-list::-webkit-scrollbar-thumb{background:transparent;border-radius:99px}
-.notice-panel:hover .notices-list::-webkit-scrollbar-thumb,.notices-list:focus-within::-webkit-scrollbar-thumb{background:var(--border-strong)}
+/* The scrollbar is hidden permanently; the list still scrolls by wheel, touch and keyboard. */
+.notices-list{display:flex;flex-direction:column;gap:10px;max-height:560px;overflow-y:auto;padding-right:2px;scrollbar-width:none}
+.notices-list::-webkit-scrollbar{display:none}
 .notice{
   background:var(--card-soft);border:1px solid var(--border);border-radius:6.5px;
   padding:13px 14px;position:relative;
