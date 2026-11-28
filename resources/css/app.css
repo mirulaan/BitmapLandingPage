@@ -208,11 +208,11 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ---------- Search row ---------- */
-.search-row { display: flex; align-items: center; gap: 12px; margin: 18px 2px 4px; flex-wrap: wrap; }
-.search-wrap { position: relative; flex: 1 1 320px; max-width: 520px; }
+.search-row { display: flex; align-items: center; gap: 12px; margin: 18px 0 4px; flex-wrap: wrap; }
+.search-wrap { position: relative; flex: 1 1 320px; }
 .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
 #search-input {
-  width: 100%; padding: 11px 46px 11px 42px; border-radius: 6.5px;
+  width: 100%; padding: 11px 46px 11px 42px; border-radius: 10px;
   border: 1px solid var(--border); background: var(--card);
   box-shadow: var(--shadow); transition: border-color .2s ease;
 }
@@ -224,6 +224,7 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
   border-radius: 3px; padding: 1px 7px; background: var(--card-soft); pointer-events: none;
 }
 .search-count { font-size: .78rem; color: var(--muted); }
+.search-count:empty { display: none; }
 
 /* ---------- Main grid ---------- */
 .main-grid { display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 22px; margin-top: 16px; align-items: start; }
