@@ -130,11 +130,10 @@ body.bg-bokeh #bg-bokeh{opacity:1}
 }
 .brand{display:flex;align-items:center;gap:14px;min-width:0;flex:1 1 300px}
 .brand-mark{
-  width:46px;height:46px;border-radius:7px;flex:none;
-  background:linear-gradient(140deg,var(--accent),var(--amber));
-  display:grid;place-items:center;font-size:22px;color:#fff;
-  box-shadow:0 4px 14px rgba(200,109,68,.35);
+  width:46px;height:46px;flex:none;
+  display:grid;place-items:center;
 }
+.brand-logo-img{width:100%;height:100%;object-fit:contain;display:block}
 .brand-text{min-width:0}
 .office-name{
   font-family:'Fraunces',serif;font-size:1.35rem;font-weight:600;
@@ -455,7 +454,7 @@ body.bg-bokeh #bg-bokeh{opacity:1}
   <!-- ================= HEADER ================= -->
   <header class="topbar">
     <div class="brand">
-      <div class="brand-mark">🏡</div>
+      <a href="#" class="brand-mark" aria-label="Staff Hub"><img src="public/bitmap_logo.ico" alt="Staff Hub" class="brand-logo-img"></a>
       <div class="brand-text">
         <div class="office-name" id="office-name" contenteditable="true" spellcheck="false" data-placeholder="Office name"></div>
         <div class="tagline" id="tagline" contenteditable="true" spellcheck="false" data-placeholder="Add a tagline…"></div>
