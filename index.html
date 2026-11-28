@@ -212,6 +212,7 @@ body.bg-bokeh #bg-bokeh{opacity:1}
 
 /* ---------- Main grid ---------- */
 .main-grid{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:22px;margin-top:16px;align-items:start}
+.col-main{display:flex;flex-direction:column;gap:22px;min-width:0}
 .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 2px 12px}
 .section-head h2{font-size:1.18rem}
 .section-head .hint{font-size:.76rem;color:var(--muted)}
@@ -293,7 +294,6 @@ body.bg-bokeh #bg-bokeh{opacity:1}
 .empty-note{font-size:.82rem;color:var(--muted);text-align:center;padding:26px 10px;border:1px dashed var(--border);border-radius:6px}
 
 /* ---------- Bookmarks + office locations ---------- */
-.bottom-strip{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:22px;margin-top:22px;align-items:start}
 .bookmarks-panel{display:flex;flex-direction:column;gap:12px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip-link{
@@ -430,11 +430,13 @@ body.bg-bokeh #bg-bokeh{opacity:1}
   .clock{font-size:1.42rem}
   .search-row{margin:12px 0 2px}
   .main-grid{margin-top:12px}
-  .bottom-strip{margin-top:16px}
 }
 @media (max-width:1060px){
-  .main-grid,.bottom-strip{grid-template-columns:1fr}
-  .notice-panel{position:static}
+  .main-grid{grid-template-columns:1fr}
+  .col-main{display:contents}
+  .col-main>section{order:2}
+  .col-main>section:first-child{order:0}
+  .notice-panel{position:static;order:1}
   .notices-list{max-height:420px}
 }
 @media (max-width:720px){
@@ -501,13 +503,29 @@ body.bg-bokeh #bg-bokeh{opacity:1}
     </div>
 
     <div class="main-grid">
-      <section aria-label="Service launcher">
-        <div class="section-head">
-          <h2>Service Launcher</h2>
-          <span class="hint">click a card to open</span>
-        </div>
-        <div class="services-grid" id="services-grid"></div>
-      </section>
+      <div class="col-main">
+        <section aria-label="Service launcher">
+          <div class="section-head">
+            <h2>Service Launcher</h2>
+            <span class="hint">click a card to open</span>
+          </div>
+          <div class="services-grid" id="services-grid"></div>
+        </section>
+
+        <section class="card-panel bookmarks-panel" aria-label="Quick bookmarks">
+          <div class="section-head" style="margin:0 0 2px">
+            <h2>Quick Bookmarks</h2>
+          </div>
+          <div class="chips" id="bookmarks-chips"></div>
+        </section>
+
+        <section class="card-panel locations-panel" aria-label="Office locations">
+          <div class="section-head" style="margin:0 0 2px">
+            <h2>Our Offices</h2>
+          </div>
+          <div class="loc-list" id="loc-list"></div>
+        </section>
+      </div>
 
       <aside class="card-panel notice-panel" aria-label="Office notice board">
         <div class="notice-head">
@@ -522,21 +540,6 @@ body.bg-bokeh #bg-bokeh{opacity:1}
         </div>
         <div class="notices-list" id="notices-list"></div>
       </aside>
-    </div>
-
-    <div class="bottom-strip">
-      <section class="card-panel bookmarks-panel" aria-label="Quick bookmarks">
-        <div class="section-head" style="margin:0 0 2px">
-          <h2>Quick Bookmarks</h2>
-        </div>
-        <div class="chips" id="bookmarks-chips"></div>
-      </section>
-      <section class="card-panel locations-panel" aria-label="Office locations">
-        <div class="section-head" style="margin:0 0 2px">
-          <h2>Our Offices</h2>
-        </div>
-        <div class="loc-list" id="loc-list"></div>
-      </section>
     </div>
 
     <div class="foot">Brewed with <span class="heart">♥</span> by the office IT crew — press <b>/</b> to search, anywhere.</div>
