@@ -225,7 +225,7 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
 .search-count:empty { display: none; }
 
 /* ---------- Main grid ---------- */
-.main-grid { display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 22px; margin-top: 16px; align-items: start; }
+.main-grid { display: grid; grid-template-columns: minmax(0, 1fr) clamp(372px, 42vw, 560px); gap: 22px; margin-top: 16px; align-items: start; }
 /* Left column stacks the launcher, bookmarks and offices so the notice board has a tall column to sit beside. */
 .col-main { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0 2px 12px; }
@@ -233,7 +233,7 @@ body.bg-bokeh #bg-bokeh { opacity: 1; }
 .section-head .hint { font-size: .76rem; color: var(--muted); }
 
 /* ---------- Service cards ---------- */
-.services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 14px; }
+.services-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .svc {
   display: flex; flex-direction: column; gap: 10px;
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
@@ -539,6 +539,8 @@ body.is-navigating { cursor: progress; }
 }
 @media (max-width: 1060px) {
   .main-grid { grid-template-columns: 1fr; }
+  /* Full width again, so let the launcher cards flow on their own. */
+  .services-grid { grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); }
   /* Unwrap the left column so the notice board can follow the launcher straight away. */
   .col-main { display: contents; }
   .col-main > section { order: 2; }
