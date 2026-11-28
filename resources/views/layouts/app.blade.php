@@ -123,10 +123,7 @@
 window.__INITIAL_STATE__ = {
   office: @json($settings->office_name),
   tagline: @json($settings->tagline),
-  helpdesk: {
-    email: @json($settings->helpdesk_email),
-    ext: @json($settings->helpdesk_ext)
-  },
+  offices: @json($settings->locations()),
   theme: @json($settings->theme),
   wallpaper: {
     enabled: @json((bool)$settings->wallpaper_enabled),

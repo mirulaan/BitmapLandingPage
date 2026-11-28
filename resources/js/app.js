@@ -16,7 +16,6 @@
   let state = {
     office: initState.office || 'Nordvik & Co. — Staff Hub',
     tagline: initState.tagline || 'A calm place to start the workday.',
-    helpdesk: initState.helpdesk || { email: 'helpdesk@nordvik.local', ext: 'x4210' },
     theme: initState.theme || localStorage.getItem('staffhub-theme') || null,
     wallpaper: initState.wallpaper || { enabled: true, mode: 'picsum', customUrls: [], interval: 300000, blur: 28, veil: 55 },
   };
@@ -75,6 +74,42 @@
     };
     return fetch(url, options);
   }
+
+  /* ---------------- Office locations: open in a native maps app ---------------- */
+  function isIOSDevice() {
+    const ua = navigator.userAgent || '';
+    const touchMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    return /iPad|iPhone|iPod/.test(ua) || touchMac;
+  }
+
+  /**
+   * Build a maps deep link. iOS is sent to Apple Maps so the native app always
+   * opens; everything else uses the Google Maps URL, which hands off to the
+   * Google Maps app on Android.
+   */
+  function mapsUrl(name, address) {
+    const label = String(name || '').trim();
+    const addr = String(address || '').trim();
+    const combined = [label, addr].filter(Boolean).join(' ');
+
+    if (isIOSDevice()) {
+      const params = new URLSearchParams();
+      params.set('daddr', addr || label);
+      if (label) params.set('q', label);
+      return 'https://maps.apple.com/?' + params.toString();
+    }
+
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(combined);
+  }
+
+  $$('.loc-item').forEach(item => {
+    item.addEventListener('click', event => {
+      const url = mapsUrl(item.dataset.mapName, item.dataset.mapAddress);
+      if (!url || url.includes('query=undefined')) return;
+      event.preventDefault();
+      window.location.href = url;
+    });
+  });
 
   /* ---------------- Theme ---------------- */
   function currentTheme() {
@@ -452,8 +487,6 @@
       const payload = {
         office_name: state.office,
         tagline: state.tagline,
-        helpdesk_email: state.helpdesk.email,
-        helpdesk_ext: state.helpdesk.ext,
         wallpaper_enabled: $('#adm-wp-enabled')?.checked ?? true,
         wallpaper_mode: $('#adm-wp-source')?.value || 'picsum',
         wallpaper_custom_urls: customUrls,
@@ -816,16 +849,6 @@
             state.tagline = data.tagline;
             const el = $('#tagline');
             if (el) el.textContent = data.tagline;
-          }
-          if (data.helpdesk_email) {
-            state.helpdesk.email = data.helpdesk_email;
-            const el = $('#hd-email');
-            if (el) el.textContent = data.helpdesk_email;
-          }
-          if (data.helpdesk_ext) {
-            state.helpdesk.ext = data.helpdesk_ext;
-            const el = $('#hd-ext');
-            if (el) el.textContent = data.helpdesk_ext;
           }
         } else {
           formSettings.submit();

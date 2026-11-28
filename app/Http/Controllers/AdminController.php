@@ -32,8 +32,9 @@ class AdminController extends Controller
         $data = $request->validate([
             'office_name' => 'required|string|max:60',
             'tagline' => 'nullable|string|max:90',
-            'helpdesk_email' => 'required|email|max:120',
-            'helpdesk_ext' => 'nullable|string|max:12',
+            'office_locations' => 'nullable|array',
+            'office_locations.*.name' => 'nullable|string|max:60',
+            'office_locations.*.address' => 'nullable|string|max:180',
             'wifi_ssid' => 'nullable|string|max:64',
             'wifi_password' => 'nullable|string|max:64',
             'wifi_encryption' => 'nullable|string|in:WPA,WEP,nopass',
@@ -47,6 +48,17 @@ class AdminController extends Controller
         ]);
 
         $setting = PortalSetting::current();
+
+        if (array_key_exists('office_locations', $data)) {
+            $data['office_locations'] = collect($data['office_locations'])
+                ->take(PortalSetting::LOCATION_SLOTS)
+                ->map(fn (array $location): array => [
+                    'name' => trim((string) ($location['name'] ?? '')),
+                    'address' => trim((string) ($location['address'] ?? '')),
+                ])
+                ->values()
+                ->all();
+        }
 
         if (isset($data['wallpaper_custom_urls'])) {
             if (is_string($data['wallpaper_custom_urls'])) {
@@ -283,10 +295,7 @@ class AdminController extends Controller
             'version' => 1,
             'office' => $setting->office_name,
             'tagline' => $setting->tagline,
-            'helpdesk' => [
-                'email' => $setting->helpdesk_email,
-                'ext' => $setting->helpdesk_ext,
-            ],
+            'offices' => $setting->locations(),
             'wifi' => [
                 'ssid' => $setting->wifi_ssid,
                 'password' => $setting->wifi_password,
@@ -329,14 +338,11 @@ class AdminController extends Controller
         DB::transaction(function () use ($data) {
             $setting = PortalSetting::current();
             $wp = $data['wallpaper'] ?? [];
-            $hd = $data['helpdesk'] ?? [];
             $wifi = $data['wifi'] ?? [];
 
             $setting->update([
                 'office_name' => $data['office'] ?? $data['office_name'] ?? $setting->office_name,
                 'tagline' => $data['tagline'] ?? $setting->tagline,
-                'helpdesk_email' => $hd['email'] ?? $data['helpdesk_email'] ?? $setting->helpdesk_email,
-                'helpdesk_ext' => $hd['ext'] ?? $data['helpdesk_ext'] ?? $setting->helpdesk_ext,
                 'wifi_ssid' => $wifi['ssid'] ?? $data['wifi_ssid'] ?? $setting->wifi_ssid,
                 'wifi_password' => $wifi['password'] ?? $data['wifi_password'] ?? $setting->wifi_password,
                 'wifi_encryption' => $wifi['encryption'] ?? $data['wifi_encryption'] ?? $setting->wifi_encryption,
@@ -348,6 +354,19 @@ class AdminController extends Controller
                 'wallpaper_blur' => $wp['blur'] ?? $setting->wallpaper_blur,
                 'wallpaper_veil' => $wp['veil'] ?? $setting->wallpaper_veil,
             ]);
+
+            if (isset($data['offices']) && is_array($data['offices'])) {
+                $setting->update([
+                    'office_locations' => collect($data['offices'])
+                        ->take(PortalSetting::LOCATION_SLOTS)
+                        ->map(fn (array $office): array => [
+                            'name' => trim((string) ($office['name'] ?? '')),
+                            'address' => trim((string) ($office['address'] ?? '')),
+                        ])
+                        ->values()
+                        ->all(),
+                ]);
+            }
 
             if (isset($data['services']) && is_array($data['services'])) {
                 Service::truncate();

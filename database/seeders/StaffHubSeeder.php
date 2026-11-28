@@ -34,8 +34,7 @@ class StaffHubSeeder extends Seeder
             [
                 'office_name' => 'Nordvik & Co. — Staff Hub',
                 'tagline' => 'A calm place to start the workday.',
-                'helpdesk_email' => 'helpdesk@nordvik.local',
-                'helpdesk_ext' => 'x4210',
+                'office_locations' => PortalSetting::defaultLocations(),
                 'wifi_ssid' => 'Nordvik-Guest',
                 'wifi_password' => 'CozyWelcome2026',
                 'wifi_encryption' => 'WPA',
