@@ -6,13 +6,13 @@
     </div>
 
     @if(session('status'))
-      <div style="background:var(--sage-soft);border:1px solid var(--sage);color:var(--sage);padding:10px 16px;border-radius:12px;margin-bottom:18px;font-size:0.85rem;font-weight:600;">
+      <div style="background:var(--sage-soft);border:1px solid var(--sage);color:var(--sage);padding:10px 16px;border-radius:6px;margin-bottom:18px;font-size:0.85rem;font-weight:600;">
         {{ session('status') }}
       </div>
     @endif
 
     @if($errors->any())
-      <div style="background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);padding:10px 16px;border-radius:12px;margin-bottom:18px;font-size:0.85rem;">
+      <div style="background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);padding:10px 16px;border-radius:6px;margin-bottom:18px;font-size:0.85rem;">
         <ul style="margin:0;padding-left:18px">
           @foreach($errors->all() as $err)
             <li>{{ $err }}</li>
@@ -21,10 +21,10 @@
       </div>
     @endif
 
-    <!-- Identity & Helpdesk -->
+    <!-- Identity & Offices -->
     <section class="card-panel admin-section">
-      <h3><span aria-hidden="true">🏛️</span> Portal Identity &amp; Helpdesk</h3>
-      <p class="sec-desc">The name on the door and where to reach the friendly IT folks.</p>
+      <h3><span aria-hidden="true">🏛️</span> Portal Identity &amp; Offices</h3>
+      <p class="sec-desc">The name on the door and the three office locations shown on the staff portal.</p>
       <form method="POST" action="{{ route('admin.settings.update') }}" id="form-settings">
         @csrf
         @method('PUT')
@@ -45,14 +45,6 @@
             <input id="adm-tagline" name="tagline" type="text" maxlength="90" value="{{ old('tagline', $settings->tagline) }}">
           </div>
           <div class="field">
-            <label for="adm-email">Helpdesk email</label>
-            <input id="adm-email" name="helpdesk_email" type="email" value="{{ old('helpdesk_email', $settings->helpdesk_email) }}" required>
-          </div>
-          <div class="field">
-            <label for="adm-ext">Helpdesk extension</label>
-            <input id="adm-ext" name="helpdesk_ext" type="text" maxlength="12" value="{{ old('helpdesk_ext', $settings->helpdesk_ext) }}">
-          </div>
-          <div class="field">
             <label for="adm-wifi-ssid">Guest Wi-Fi SSID</label>
             <input id="adm-wifi-ssid" name="wifi_ssid" type="text" maxlength="64" value="{{ old('wifi_ssid', $settings->wifi_ssid) }}" placeholder="e.g. Nordvik-Guest">
           </div>
@@ -61,8 +53,27 @@
             <input id="adm-wifi-pass" name="wifi_password" type="text" maxlength="64" value="{{ old('wifi_password', $settings->wifi_password) }}" placeholder="Password">
           </div>
         </div>
+        <div class="loc-admin">
+          <div class="loc-admin-head">Office locations</div>
+          @foreach($settings->locations() as $i => $loc)
+            <div class="loc-admin-row">
+              <span class="loc-admin-index" aria-hidden="true">{{ $i + 1 }}</span>
+              <div class="field">
+                <label for="adm-loc-name-{{ $i }}">Location {{ $i + 1 }} — name</label>
+                <input id="adm-loc-name-{{ $i }}" name="office_locations[{{ $i }}][name]" type="text" maxlength="60"
+                       value="{{ old('office_locations.'.$i.'.name', $loc['name']) }}" placeholder="e.g. Head Office">
+              </div>
+              <div class="field">
+                <label for="adm-loc-addr-{{ $i }}">Location {{ $i + 1 }} — address</label>
+                <input id="adm-loc-addr-{{ $i }}" name="office_locations[{{ $i }}][address]" type="text" maxlength="180"
+                       value="{{ old('office_locations.'.$i.'.address', $loc['address']) }}" placeholder="Street, postcode, city">
+              </div>
+            </div>
+          @endforeach
+          <p class="loc-admin-note">Leave a row empty to hide that location. Addresses are used to build the maps link.</p>
+        </div>
         <div style="margin-top:14px;display:flex;justify-content:flex-end">
-          <button type="submit" class="btn btn-sm">Save Identity &amp; Wi-Fi Settings</button>
+          <button type="submit" class="btn btn-sm">Save Identity, Wi-Fi &amp; Offices</button>
         </div>
       </form>
     </section>

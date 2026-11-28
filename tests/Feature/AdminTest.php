@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\PortalSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -60,8 +61,11 @@ class AdminTest extends TestCase
         $response = $this->actingAs($user)->put('/admin/settings', [
             'office_name' => 'Updated Office Hub',
             'tagline' => 'New tagline test',
-            'helpdesk_email' => 'support@test.local',
-            'helpdesk_ext' => 'x9999',
+            'office_locations' => [
+                ['name' => 'Head Office', 'address' => '1 Harbour Drive, Singapore 068816'],
+                ['name' => 'North Studio', 'address' => '22 Bukit Batok Street 22, Singapore 659572'],
+                ['name' => 'East Depot', 'address' => '45 Geylang Road, Singapore 389280'],
+            ],
             'wifi_ssid' => 'Nordvik-NewWifi',
             'wifi_password' => 'SuperPass2026',
             'wifi_encryption' => 'WPA',
@@ -75,10 +79,60 @@ class AdminTest extends TestCase
         $response->assertSessionHasNoErrors();
         $this->assertDatabaseHas('portal_settings', [
             'office_name' => 'Updated Office Hub',
-            'helpdesk_ext' => 'x9999',
             'wifi_ssid' => 'Nordvik-NewWifi',
             'wifi_password' => 'SuperPass2026',
         ]);
+
+        $this->assertSame([
+            ['name' => 'Head Office', 'address' => '1 Harbour Drive, Singapore 068816'],
+            ['name' => 'North Studio', 'address' => '22 Bukit Batok Street 22, Singapore 659572'],
+            ['name' => 'East Depot', 'address' => '45 Geylang Road, Singapore 389280'],
+        ], PortalSetting::current()->locations());
+    }
+
+    public function test_office_locations_are_capped_at_three_slots(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->put('/admin/settings', [
+            'office_name' => 'Capped Office',
+            'office_locations' => [
+                ['name' => ' One ', 'address' => ' 1 One Street '],
+                ['name' => 'Two', 'address' => '2 Two Street'],
+                ['name' => 'Three', 'address' => '3 Three Street'],
+                ['name' => 'Four', 'address' => '4 Four Street'],
+            ],
+            'wallpaper_mode' => 'picsum',
+            'wallpaper_interval' => 60000,
+            'wallpaper_blur' => 20,
+            'wallpaper_veil' => 50,
+        ]);
+
+        $response->assertSessionHasNoErrors();
+
+        $this->assertSame([
+            ['name' => 'One', 'address' => '1 One Street'],
+            ['name' => 'Two', 'address' => '2 Two Street'],
+            ['name' => 'Three', 'address' => '3 Three Street'],
+        ], PortalSetting::current()->locations());
+    }
+
+    public function test_portal_hides_blank_office_location_slots(): void
+    {
+        PortalSetting::current()->update([
+            'office_locations' => [
+                ['name' => 'Head Office', 'address' => '1 Harbour Drive, Singapore 068816'],
+                ['name' => '', 'address' => ''],
+                ['name' => 'East Depot', 'address' => '45 Geylang Road, Singapore 389280'],
+            ],
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Head Office');
+        $response->assertSee('East Depot');
+        $response->assertDontSee('loc-name"></span>', false);
     }
 
     public function test_user_can_login_with_username(): void

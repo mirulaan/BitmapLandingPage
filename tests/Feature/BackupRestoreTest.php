@@ -16,7 +16,14 @@ class BackupRestoreTest extends TestCase
     public function test_export_returns_valid_json_payload(): void
     {
         $user = User::factory()->create();
-        PortalSetting::current()->update(['office_name' => 'Nordvik Test HQ']);
+        PortalSetting::current()->update([
+            'office_name' => 'Nordvik Test HQ',
+            'office_locations' => [
+                ['name' => 'Test HQ', 'address' => '1 Test Way, Singapore 018936'],
+                ['name' => '', 'address' => ''],
+                ['name' => '', 'address' => ''],
+            ],
+        ]);
         Service::create([
             'icon' => '☁️',
             'name' => 'Cloud Backup',
@@ -32,6 +39,8 @@ class BackupRestoreTest extends TestCase
         $json = $response->json();
 
         $this->assertEquals('Nordvik Test HQ', $json['office']);
+        $this->assertArrayHasKey('offices', $json);
+        $this->assertSame('Test HQ', $json['offices'][0]['name']);
         $this->assertCount(1, $json['services']);
         $this->assertEquals('Cloud Backup', $json['services'][0]['name']);
     }
@@ -44,7 +53,10 @@ class BackupRestoreTest extends TestCase
             'version' => 1,
             'office' => 'Imported Custom Office',
             'tagline' => 'Imported tagline',
-            'helpdesk' => ['email' => 'custom@office.local', 'ext' => 'x1111'],
+            'offices' => [
+                ['name' => 'Custom HQ', 'address' => '9 Custom Avenue, Singapore 018936'],
+                ['name' => 'Custom Annex', 'address' => '11 Annex Road, Singapore 068816'],
+            ],
             'wallpaper' => ['enabled' => true, 'mode' => 'picsum', 'blur' => 24, 'veil' => 60],
             'services' => [
                 ['icon' => '☕', 'name' => 'Coffee Machine IoT', 'desc' => 'Check beans level', 'url' => 'http://coffee.local', 'status' => 'online'],
@@ -65,6 +77,11 @@ class BackupRestoreTest extends TestCase
 
         $response->assertSessionHasNoErrors();
         $this->assertDatabaseHas('portal_settings', ['office_name' => 'Imported Custom Office']);
+        $this->assertSame([
+            ['name' => 'Custom HQ', 'address' => '9 Custom Avenue, Singapore 018936'],
+            ['name' => 'Custom Annex', 'address' => '11 Annex Road, Singapore 068816'],
+            ['name' => '', 'address' => ''],
+        ], PortalSetting::current()->locations());
         $this->assertDatabaseHas('services', ['name' => 'Coffee Machine IoT']);
         $this->assertDatabaseHas('notices', ['title' => 'Imported Announcement']);
         $this->assertDatabaseHas('bookmarks', ['label' => 'Imported Link']);

@@ -97,22 +97,27 @@
       </div>
     </section>
 
-    <section class="helpdesk" aria-label="IT Helpdesk">
-      <h3>IT Helpdesk</h3>
-      <div class="sub">Something creaking? We'll bring oil.</div>
-      <div class="hd-row">
-        <div>
-          <div class="hd-label">Email</div>
-          <div class="hd-value" id="hd-email">{{ $settings->helpdesk_email }}</div>
-        </div>
-        <button class="copy-btn" data-copy-target="hd-email" type="button">Copy</button>
-      </div>
-      <div class="hd-row">
-        <div>
-          <div class="hd-label">Phone extension</div>
-          <div class="hd-value" id="hd-ext">{{ $settings->helpdesk_ext }}</div>
-        </div>
-        <button class="copy-btn" data-copy-target="hd-ext" type="button">Copy</button>
+    <section class="locations" aria-label="Office locations">
+      <h3>Our Offices</h3>
+      <div class="sub">Tap a location to open it in your maps app.</div>
+      <div class="loc-list">
+        @foreach($settings->locations() as $loc)
+          @if($loc['name'] !== '' || $loc['address'] !== '')
+            <a class="loc-item"
+               href="https://www.google.com/maps/search/?api=1&amp;query={{ rawurlencode(trim($loc['name'].' '.$loc['address'])) }}"
+               data-map-name="{{ $loc['name'] }}"
+               data-map-address="{{ $loc['address'] }}"
+               target="_blank"
+               rel="noopener">
+              <span class="loc-pin" aria-hidden="true">📍</span>
+              <span class="loc-text">
+                <span class="loc-name">{{ $loc['name'] }}</span>
+                <span class="loc-addr">{{ $loc['address'] }}</span>
+              </span>
+              <span class="loc-go">Map ↗</span>
+            </a>
+          @endif
+        @endforeach
       </div>
     </section>
   </div>

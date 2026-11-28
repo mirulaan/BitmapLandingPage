@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class PortalSetting extends Model
 {
+    /**
+     * The portal always shows exactly this many office location slots.
+     */
+    public const LOCATION_SLOTS = 3;
+
     protected $guarded = ['id'];
 
     protected $hidden = ['wifi_qr_svg'];
@@ -14,10 +19,49 @@ class PortalSetting extends Model
     protected $casts = [
         'wallpaper_enabled' => 'boolean',
         'wallpaper_custom_urls' => 'array',
+        'office_locations' => 'array',
         'wallpaper_interval' => 'integer',
         'wallpaper_blur' => 'integer',
         'wallpaper_veil' => 'integer',
     ];
+
+    /**
+     * Fallback office locations used until an admin saves their own.
+     *
+     * @return array<int, array{name: string, address: string}>
+     */
+    public static function defaultLocations(): array
+    {
+        return [
+            ['name' => 'Head Office', 'address' => '1 Harbour Drive, Singapore 068816'],
+            ['name' => 'North Studio', 'address' => '22 Bukit Batok Street 22, Singapore 659572'],
+            ['name' => 'East Depot', 'address' => '45 Geylang Road #03-02, Singapore 389280'],
+        ];
+    }
+
+    /**
+     * The configured office locations, normalised to LOCATION_SLOTS entries.
+     *
+     * @return array<int, array{name: string, address: string}>
+     */
+    public function locations(): array
+    {
+        $stored = is_array($this->office_locations) ? $this->office_locations : [];
+
+        if ($stored === []) {
+            $stored = static::defaultLocations();
+        }
+
+        $locations = [];
+        for ($index = 0; $index < static::LOCATION_SLOTS; $index++) {
+            $locations[] = [
+                'name' => trim((string) ($stored[$index]['name'] ?? '')),
+                'address' => trim((string) ($stored[$index]['address'] ?? '')),
+            ];
+        }
+
+        return $locations;
+    }
 
     /**
      * Regenerate cached Wi-Fi QR SVG only when Wi-Fi credentials change.
@@ -50,6 +94,7 @@ class PortalSetting extends Model
                 'wifi_password' => 'CozyWelcome2026',
                 'wifi_encryption' => 'WPA',
                 'theme' => null,
+                'office_locations' => static::defaultLocations(),
                 'wallpaper_enabled' => true,
                 'wallpaper_mode' => 'picsum',
                 'wallpaper_custom_urls' => [],

@@ -10,7 +10,7 @@
     </div>
 
     @if($errors->any())
-      <div style="background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);padding:10px 14px;border-radius:12px;margin-bottom:16px;font-size:0.82rem;">
+      <div style="background:var(--danger-soft);border:1px solid var(--danger);color:var(--danger);padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:0.82rem;">
         <ul style="margin:0;padding-left:16px">
           @foreach($errors->all() as $err)
             <li>{{ $err }}</li>
