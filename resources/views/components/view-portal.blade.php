@@ -13,7 +13,6 @@
       <section aria-label="Service launcher">
         <div class="section-head">
           <h2>Service Launcher</h2>
-          <span class="hint">click a card to open</span>
         </div>
         <div class="services-grid" id="services-grid">
           @forelse($services as $s)
